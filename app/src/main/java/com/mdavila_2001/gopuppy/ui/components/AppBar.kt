@@ -38,7 +38,7 @@ fun AppBar(
     role: String,
     modifier: Modifier
 ) {
-    val (primaryColor, secondaryColor) = if (role.lowercase() == "walker") {
+    val (primaryColor, secondaryColor) = if (role.lowercase() == "walker" || role.lowercase() == "paseador") {
         Pair(WalkerPrimary, WalkerSecondary)
     } else {
         Pair(OwnerPrimary, OwnerSecondary)
