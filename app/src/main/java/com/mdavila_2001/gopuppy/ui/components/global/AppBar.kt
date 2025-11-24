@@ -1,31 +1,22 @@
-package com.mdavila_2001.gopuppy.ui.components
+package com.mdavila_2001.gopuppy.ui.components.global
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
-import com.mdavila_2001.gopuppy.ui.theme.OwnerPrimary
-import com.mdavila_2001.gopuppy.ui.theme.OwnerSecondary
-import com.mdavila_2001.gopuppy.ui.theme.WalkerPrimary
-import com.mdavila_2001.gopuppy.ui.theme.WalkerSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,24 +26,18 @@ fun AppBar(
     backEnabled: Boolean = false,
     onLogoutClick: () -> Unit,
     onBackClick: (() -> Unit)? = null,
-    role: String,
     modifier: Modifier
 ) {
-    val (primaryColor, secondaryColor) = if (role.lowercase() == "walker" || role.lowercase() == "paseador") {
-        Pair(WalkerPrimary, WalkerSecondary)
-    } else {
-        Pair(OwnerPrimary, OwnerSecondary)
-    }
 
     TopAppBar(
         title = {
             Box(
-                modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    title,
-                    color = Color.Black
+                    text = title,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         },
@@ -64,7 +49,7 @@ fun AppBar(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Volver",
-                        tint = Color.Black
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -77,39 +62,75 @@ fun AppBar(
                     Icon(
                         imageVector = Icons.Default.ExitToApp,
                         contentDescription = "Salir",
-                        tint = Color.Black
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
         },
-        modifier = modifier
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        primaryColor,
-                        secondaryColor
-                    ),
-                    start = Offset(-200f, 0f),
-                    end = Offset(500f, 1000f)
-                )
-            ),
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
         )
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun AppBarPreview() {
-    GoPuppyTheme() {
+fun WalkerLightAppBarPreview() {
+    GoPuppyTheme(role = "walker", darkTheme = false) {
         AppBar(
             title = "GoPuppy",
             logOutEnabled = true,
             backEnabled = true,
             onLogoutClick = {},
             onBackClick = {},
-            role = "Walker",
+            modifier = Modifier
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WalkerDarkAppBarPreview() {
+    GoPuppyTheme(role = "walker", darkTheme = true) {
+        AppBar(
+            title = "GoPuppy",
+            logOutEnabled = true,
+            backEnabled = true,
+            onLogoutClick = {},
+            onBackClick = {},
+            modifier = Modifier
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OwnerLightAppBarPreview() {
+    GoPuppyTheme(role = "owner", darkTheme = false) {
+        AppBar(
+            title = "GoPuppy",
+            logOutEnabled = true,
+            backEnabled = true,
+            onLogoutClick = {},
+            onBackClick = {},
+            modifier = Modifier
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OwnerDarkAppBarPreview() {
+    GoPuppyTheme(role = "owner", darkTheme = true) {
+        AppBar(
+            title = "GoPuppy",
+            logOutEnabled = true,
+            backEnabled = true,
+            onLogoutClick = {},
+            onBackClick = {},
             modifier = Modifier
         )
     }
