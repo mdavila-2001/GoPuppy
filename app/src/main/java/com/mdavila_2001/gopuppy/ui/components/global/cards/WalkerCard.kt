@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.components.cards
+package com.mdavila_2001.gopuppy.ui.components.global.cards
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mdavila_2001.gopuppy.ui.components.global.RatingDisplay
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 
 @Composable
@@ -76,16 +74,28 @@ fun WalkerCard(
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RatingDisplay(
+                        rating = rating,
+                        starSize = 16.dp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "($rating)",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
-
                 Text(
                     text = "$price / hora",
                     style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-
-            RatingDisplay(rating = rating)
         }
     }
 }
@@ -94,11 +104,27 @@ fun WalkerCard(
 @Composable
 fun WalkerCardPreview() {
     GoPuppyTheme(role = "owner") {
-        Box(modifier = Modifier.padding(16.dp).background(MaterialTheme.colorScheme.background)) {
+        Column(
+            modifier = Modifier.padding(8.dp)
+        ) {
             WalkerCard(
                 name = "Ben A.",
                 price = "$15",
-                rating = 4.8,
+                rating = 5.0,
+                onClick = {}
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            WalkerCard(
+                name = "Sara C.",
+                price = "$20",
+                rating = 3.5,
+                onClick = {}
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            WalkerCard(
+                name = "Novato",
+                price = "$10",
+                rating = 1.2,
                 onClick = {}
             )
         }

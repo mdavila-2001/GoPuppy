@@ -16,7 +16,6 @@ val Black = Color(0xFF000000)
 
 val NeutralBgLight = Color(0xFFFAFAFA)
 val NeutralBgDark = Color(0xFF121212)
-val SurfaceDark = Color(0xFF1E1E1E)
 
 val TextPrimaryLight = Color(0xFF212121)
 val TextSecondaryLight = Color(0xFF757575)
@@ -35,3 +34,21 @@ val WalkerOnContainer = Color(0xFFE65100)
 
 val ErrorLight = Color(0xFFB00020)
 val ErrorDark = Color(0xFFCF6679)
+
+val StatusPendingBg = Color(0xFFFFE3B6)
+val StatusPendingText = Color(0xFFE65100)
+
+val StatusAcceptedBg = Color(0xFFADDEFF)
+val StatusAcceptedText = Color(0xFF1565C0)
+
+val StatusRejectedBg = Color(0xFFFFAAB7)
+val StatusRejectedText = Color(0xFFC62828)
+
+val StatusInProgressBg = Color(0xFFAAFFB3)
+val StatusInProgressText = Color(0xFF2E7D32)
+
+val StatusFinishedBgLight = Color(0xFFF5F5F5)
+val StatusFinishedTextLight = Color(0xFF616161)
+
+val StatusFinishedBgDark = Color(0xFF424242)
+val StatusFinishedTextDark = Color(0xFFEEEEEE)
