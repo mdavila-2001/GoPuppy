@@ -3,7 +3,8 @@ package com.mdavila_2001.gopuppy.data.remote.network
 import com.mdavila_2001.gopuppy.data.remote.models.auth.LoginRequest
 import com.mdavila_2001.gopuppy.data.remote.models.auth.UserInfo
 import com.mdavila_2001.gopuppy.data.remote.models.auth.signup.AuthResponse
-import com.mdavila_2001.gopuppy.data.remote.models.auth.signup.OwnerSignup
+import com.mdavila_2001.gopuppy.data.remote.models.auth.signup.OwnerSignupDTO
+import com.mdavila_2001.gopuppy.data.remote.models.auth.signup.WalkerSignupDTO
 import com.mdavila_2001.gopuppy.data.remote.models.pet.Pet
 import com.mdavila_2001.gopuppy.data.remote.models.pet.PetDTO
 import com.mdavila_2001.gopuppy.data.remote.models.walk.ReviewDTO
@@ -27,11 +28,11 @@ interface GoPuppyApiService {
     @POST("auth/client/login")
     suspend fun loginOwner(@Body loginRequest: LoginRequest): Response<AuthResponse>
     @POST("auth/clientregister")
-    suspend fun registerOwner(@Body loginRequest: OwnerSignup): Response<AuthResponse>
+    suspend fun registerOwner(@Body request: OwnerSignupDTO): Response<AuthResponse>
     @POST("auth/walker/login")
     suspend fun loginWalker(@Body loginRequest: LoginRequest): Response<AuthResponse>
     @POST("auth/walkerregister")
-    suspend fun registerWalker(@Body loginRequest: OwnerSignup): Response<AuthResponse>
+    suspend fun registerWalker(@Body request: WalkerSignupDTO): Response<AuthResponse>
     @GET("me")
     suspend fun getProfile(): Response<UserInfo>
 
@@ -40,9 +41,9 @@ interface GoPuppyApiService {
     @POST("pets")
     suspend fun addPet(@Body pet: PetDTO): Response<Pet>
     @PUT("pets/{id}")
-    suspend fun updatePet(@Body pet: PetDTO): Response<Pet>
+    suspend fun updatePet(@Path("id") id: Int, @Body pet: PetDTO): Response<Pet>
     @DELETE("pets/{id}")
-    suspend fun deletePet(@Body pet: PetDTO): Response<Pet>
+    suspend fun deletePet(@Path("id") id: Int): Response<Pet>
     @Multipart
     @POST("pets/{id}/photo")
     suspend fun uploadPetPhoto(
