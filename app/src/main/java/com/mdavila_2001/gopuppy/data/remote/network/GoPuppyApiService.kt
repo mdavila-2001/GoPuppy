@@ -57,6 +57,8 @@ interface GoPuppyApiService {
     suspend fun getWalkerDetail(@Path("id") id: Int): Response<Walker>
     @POST("walkers/availability")
     suspend fun setAvailability(@Body availability: Availability): Response<Void>
+    @POST("walkers/location")
+    suspend fun sendLocation(@Body location: Location): Response<Void>
     @Multipart
     @POST("walkers/photo")
     suspend fun uploadWalkerPhoto(@Part photo: MultipartBody.Part): Response<Void>
