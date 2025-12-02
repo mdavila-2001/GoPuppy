@@ -35,9 +35,9 @@ fun StatusChip(
         "en curso" -> Pair(StatusInProgressBg, StatusInProgressText)
 
         "finalizado" -> if (isDark) {
-            Pair(StatusFinishedBgDark, StatusFinishedTextDark) // Colores Noche
+            Pair(StatusFinishedBgDark, StatusFinishedTextDark)
         } else {
-            Pair(StatusFinishedBgLight, StatusFinishedTextLight) // Colores Día
+            Pair(StatusFinishedBgLight, StatusFinishedTextLight)
         }
 
         else -> Pair(Color.LightGray, Color.Black)

@@ -20,11 +20,17 @@ private val OwnerLightScheme = lightColorScheme(
     onPrimary = OwnerOnPrimary,
     primaryContainer = OwnerContainer,
     onPrimaryContainer = OwnerOnContainer,
+    secondary = OwnerPrimary,
+    onSecondary = OwnerOnPrimary,
+    secondaryContainer = OwnerContainer,
+    onSecondaryContainer = OwnerOnContainer,
     background = NeutralBgLight,
     surface = White,
     onBackground = TextPrimaryLight,
     onSurface = TextPrimaryLight,
-    error = ErrorLight
+    error = ErrorLight,
+    errorContainer = StatusRejectedBg,
+    onErrorContainer = StatusRejectedText
 )
 
 private val OwnerDarkScheme = darkColorScheme(
@@ -32,11 +38,17 @@ private val OwnerDarkScheme = darkColorScheme(
     onPrimary = OwnerOnPrimary,
     primaryContainer = OwnerOnContainer,
     onPrimaryContainer = OwnerContainer,
+    secondary = OwnerPrimary,
+    onSecondary = OwnerOnPrimary,
+    secondaryContainer = OwnerOnContainer,
+    onSecondaryContainer = OwnerContainer,
     background = NeutralBgDark,
     surface = Black,
     onBackground = TextPrimaryDark,
     onSurface = TextPrimaryDark,
-    error = ErrorDark
+    error = ErrorDark,
+    errorContainer = StatusRejectedBg,
+    onErrorContainer = StatusRejectedText
 )
 
 private val WalkerLightScheme = lightColorScheme(
@@ -44,11 +56,17 @@ private val WalkerLightScheme = lightColorScheme(
     onPrimary = WalkerOnPrimary,
     primaryContainer = WalkerContainer,
     onPrimaryContainer = WalkerOnContainer,
+    secondary = WalkerPrimary,
+    onSecondary = WalkerOnPrimary,
+    secondaryContainer = WalkerContainer,
+    onSecondaryContainer = WalkerOnContainer,
     background = NeutralBgLight,
     surface = White,
     onBackground = TextPrimaryLight,
     onSurface = TextPrimaryLight,
-    error = ErrorLight
+    error = ErrorLight,
+    errorContainer = StatusRejectedBg,
+    onErrorContainer = StatusRejectedText
 )
 
 private val WalkerDarkScheme = darkColorScheme(
@@ -56,11 +74,17 @@ private val WalkerDarkScheme = darkColorScheme(
     onPrimary = WalkerOnPrimary,
     primaryContainer = WalkerOnContainer,
     onPrimaryContainer = WalkerContainer,
+    secondary = WalkerPrimary,
+    onSecondary = WalkerOnPrimary,
+    secondaryContainer = WalkerOnContainer,
+    onSecondaryContainer = WalkerContainer,
     background = NeutralBgDark,
     surface = Black,
     onBackground = TextPrimaryDark,
     onSurface = TextPrimaryDark,
-    error = ErrorDark
+    error = ErrorDark,
+    errorContainer = StatusRejectedBg,
+    onErrorContainer = StatusRejectedText
 )
 
 @Composable
