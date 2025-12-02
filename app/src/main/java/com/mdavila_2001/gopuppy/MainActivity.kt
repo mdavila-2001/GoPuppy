@@ -22,11 +22,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             GoPuppyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
+                    /*Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
-                    )
-                    //NavigationApp(modifier = Modifier.padding(innerPadding))
+                    )*/
+                    NavigationApp(modifier = Modifier.padding(innerPadding))
                     //MapTestScreen(modifier = Modifier.padding(innerPadding))
                 }
             }

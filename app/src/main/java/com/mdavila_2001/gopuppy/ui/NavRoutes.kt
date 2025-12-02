@@ -1,9 +1,21 @@
 package com.mdavila_2001.gopuppy.ui
 
-sealed class NavRoutes(val route: String) {
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+
+sealed class NavRoutes(val route: String, val arguments: List<NamedNavArgument> = emptyList()) {
     object Splash : NavRoutes("splash")
     object Landing : NavRoutes("landing")
-    object Login : NavRoutes("login")
+    object Login : NavRoutes(
+        route = "login?isWalker={isWalker}",
+        arguments = listOf(navArgument("isWalker") {
+            type = NavType.BoolType
+            defaultValue = false
+    })
+    ) {
+        fun createRoute(isWalker: Boolean) = "login?isWalker=$isWalker"
+    }
 
     object Register : NavRoutes("register/{isWalker}") {
         fun createRoute(isWalker: Boolean) = "register/$isWalker"
