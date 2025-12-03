@@ -6,7 +6,7 @@ import androidx.navigation.navArgument
 
 sealed class NavRoutes(val route: String, val arguments: List<NamedNavArgument> = emptyList()) {
     object Splash : NavRoutes("splash")
-    object Landing : NavRoutes("landing")
+    object Onboarding : NavRoutes("onboarding")
     object Login : NavRoutes(
         route = "login?isWalker={isWalker}",
         arguments = listOf(navArgument("isWalker") {

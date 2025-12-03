@@ -22,6 +22,8 @@ val TextSecondaryLight = Color(0xFF757575)
 val TextPrimaryDark = Color(0xFFE0E0E0)
 val TextSecondaryDark = Color(0xFFB0B0B0)
 
+val PrimaryLight = Color(0xFF29B6CE)
+
 val OwnerPrimary = Color(0xFF4CAF50)
 val OwnerOnPrimary = Color(0xFFFFFFFF)
 val OwnerContainer = Color(0xFFC8E6C9)
@@ -52,3 +54,6 @@ val StatusFinishedTextLight = Color(0xFF616161)
 
 val StatusFinishedBgDark = Color(0xFF424242)
 val StatusFinishedTextDark = Color(0xFFEEEEEE)
+
+val NeutralDark = Color(0xFF29B6CE)
+val NeutralLight = Color(0xFF2981CE)
