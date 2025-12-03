@@ -8,5 +8,5 @@ data class PetDTO (
     @SerializedName("species")
     val species: String,
     @SerializedName("notes")
-    val notes: String?
+    val notes: String
 )

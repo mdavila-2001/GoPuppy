@@ -11,6 +11,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.views.OnboardingScreen
+import com.mdavila_2001.gopuppy.ui.views.splash.SplashScreen
+import com.mdavila_2001.gopuppy.ui.views.login.LoginScreen
+import com.mdavila_2001.gopuppy.ui.views.register.RegisterScreen
+import com.mdavila_2001.gopuppy.ui.views.owner_home.OwnerHomeScreen
+import com.mdavila_2001.gopuppy.ui.views.pet_form.PetFormScreen
 
 @Composable
 fun NavigationApp(modifier: Modifier) {
@@ -22,25 +27,38 @@ fun NavigationApp(modifier: Modifier) {
         startDestination = NavRoutes.Onboarding.route,
     ) {
         composable(NavRoutes.Splash.route) {
-            PlaceholderScreen("Splash")
+            SplashScreen(navController)
         }
         composable(NavRoutes.Onboarding.route) {
             OnboardingScreen(navController)
         }
-        composable(NavRoutes.Login.route) {
-            PlaceholderScreen("Login")
+        composable(
+            route = NavRoutes.Login.route,
+            arguments = NavRoutes.Login.arguments
+        ) { backStackEntry ->
+            val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
+            LoginScreen(navController, isWalker)
         }
-        composable(NavRoutes.Register.route) {
-            PlaceholderScreen("Register")
+        composable(
+            route = NavRoutes.Register.route,
+            arguments = NavRoutes.Register.arguments
+        ) { backStackEntry ->
+            val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
+            RegisterScreen(navController, isWalker)
         }
         composable(NavRoutes.OwnerHome.route) {
-            PlaceholderScreen("OwnerHome")
+            OwnerHomeScreen(navController)
         }
         composable(NavRoutes.MyPets.route) {
             PlaceholderScreen("MyPets")
         }
-        composable(NavRoutes.PetForm.route) {
-            PlaceholderScreen("PetForm")
+        composable(
+            route = NavRoutes.PetForm.route,
+            arguments = NavRoutes.PetForm.arguments
+        ) { backStackEntry ->
+            val petIdString = backStackEntry.arguments?.getString("petId")
+            val petId = petIdString?.toIntOrNull()?.takeIf { it > 0 }
+            PetFormScreen(navController, petId)
         }
         composable(NavRoutes.WalkerDetail.route) {
             PlaceholderScreen("WalkerDetail")

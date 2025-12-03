@@ -30,14 +30,28 @@ class PetRepository {
         pet: PetDTO
     ): Result<Pet> {
         return try {
+            Log.d("PetRepo", "Iniciando addPet: ${pet.name}")
+            Log.d("PetRepo", "Token presente: ${RetrofitInstance.authToken != null}")
             val response = api.addPet(pet)
+            Log.d("PetRepo", "Response code: ${response.code()}, isSuccessful: ${response.isSuccessful}")
+            
             if (response.isSuccessful && response.body() != null) {
+                Log.d("PetRepo", "Mascota creada exitosamente: ${response.body()?.name}")
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Error al crear mascota: ${response.message()}"))
+                val errorBody = response.errorBody()?.string()
+                val errorMsg = when (response.code()) {
+                    500 -> "Error del servidor (500). Por favor intenta de nuevo más tarde."
+                    401 -> "No autorizado. Por favor inicia sesión nuevamente."
+                    400 -> "Datos inválidos: ${errorBody ?: response.message()}"
+                    else -> "Error ${response.code()}: ${response.message()}"
+                }
+                Log.e("PetRepo", "Error addPet: $errorMsg")
+                Log.e("PetRepo", "Error body: $errorBody")
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
-            Log.e("PetRepo", "Error addPet: ${e.message}")
+            Log.e("PetRepo", "Error addPet exception: ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -52,9 +66,13 @@ class PetRepository {
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Error al editar mascota: ${response.code()}"))
+                val errorBody = response.errorBody()?.string()
+                val errorMsg = "Error ${response.code()}: ${response.message()}${if (errorBody != null) " - $errorBody" else ""}"
+                Log.e("PetRepo", "Error updatePet: $errorMsg")
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
+            Log.e("PetRepo", "Error updatePet exception: ${e.message}", e)
             Result.failure(e)
         }
     }

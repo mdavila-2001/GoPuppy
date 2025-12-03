@@ -1,0 +1,50 @@
+package com.mdavila_2001.gopuppy.ui.viewmodels
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mdavila_2001.gopuppy.data.remote.models.pet.Pet
+import com.mdavila_2001.gopuppy.data.repository.PetRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+data class OwnerHomeState(
+    val isLoading: Boolean = false,
+    val pets: List<Pet> = emptyList(),
+    val errorMessage: String? = null
+)
+
+class OwnerHomeViewModel : ViewModel() {
+    private val repository = PetRepository()
+
+    private val _state = MutableStateFlow(OwnerHomeState())
+    val state: StateFlow<OwnerHomeState> = _state
+
+    init {
+        loadPets()
+    }
+
+    fun loadPets() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            
+            repository.getMyPets().onSuccess { pets ->
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    pets = pets
+                )
+            }.onFailure { error ->
+                Log.e("OwnerHomeVM", "Error al cargar mascotas: ${error.message}", error)
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    errorMessage = error.message ?: "Error al cargar las mascotas"
+                )
+            }
+        }
+    }
+
+    fun clearError() {
+        _state.value = _state.value.copy(errorMessage = null)
+    }
+}
