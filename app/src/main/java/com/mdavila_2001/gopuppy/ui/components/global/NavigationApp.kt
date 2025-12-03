@@ -11,6 +11,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.views.LandingScreen
+import com.mdavila_2001.gopuppy.ui.views.splash.SplashScreen
+import com.mdavila_2001.gopuppy.ui.views.login.LoginScreen
+import com.mdavila_2001.gopuppy.ui.views.register.RegisterScreen
 
 @Composable
 fun NavigationApp(modifier: Modifier) {
@@ -18,20 +21,27 @@ fun NavigationApp(modifier: Modifier) {
 
     NavHost(
         navController = navController,
-        //startDestination = NavRoutes.Splash.route
-        startDestination = NavRoutes.Landing.route,
+        startDestination = NavRoutes.Splash.route,
     ) {
         composable(NavRoutes.Splash.route) {
-            PlaceholderScreen("Splash")
+            SplashScreen(navController)
         }
         composable(NavRoutes.Landing.route) {
             LandingScreen(navController)
         }
-        composable(NavRoutes.Login.route) {
-            PlaceholderScreen("Login")
+        composable(
+            route = NavRoutes.Login.route,
+            arguments = NavRoutes.Login.arguments
+        ) { backStackEntry ->
+            val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
+            LoginScreen(navController, isWalker)
         }
-        composable(NavRoutes.Register.route) {
-            PlaceholderScreen("Register")
+        composable(
+            route = NavRoutes.Register.route,
+            arguments = NavRoutes.Register.arguments
+        ) { backStackEntry ->
+            val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
+            RegisterScreen(navController, isWalker)
         }
         composable(NavRoutes.OwnerHome.route) {
             PlaceholderScreen("OwnerHome")

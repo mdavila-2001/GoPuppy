@@ -17,7 +17,13 @@ sealed class NavRoutes(val route: String, val arguments: List<NamedNavArgument> 
         fun createRoute(isWalker: Boolean) = "login?isWalker=$isWalker"
     }
 
-    object Register : NavRoutes("register/{isWalker}") {
+    object Register : NavRoutes(
+        route = "register/{isWalker}",
+        arguments = listOf(navArgument("isWalker") {
+            type = NavType.BoolType
+            defaultValue = false
+        })
+    ) {
         fun createRoute(isWalker: Boolean) = "register/$isWalker"
     }
 
