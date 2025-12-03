@@ -119,14 +119,14 @@ fun OnboardingScreen(navController: NavController) {
                     GoPuppyTheme(role = "owner") {
                         Button(
                             text = "Soy Dueño",
-                            onClick = { navController.navigate(NavRoutes.Login.route) }
+                            onClick = { navController.navigate(NavRoutes.Login.createRoute(isWalker = false)) }
                         )
                     }
 
                     GoPuppyTheme(role = "walker") {
                         Button(
                             text = "Soy Paseador",
-                            onClick = { navController.navigate(NavRoutes.Login.route) }
+                            onClick = { navController.navigate(NavRoutes.Login.createRoute(isWalker = true)) }
                         )
                     }
                 }

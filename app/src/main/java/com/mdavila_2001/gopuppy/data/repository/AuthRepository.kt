@@ -48,7 +48,6 @@ class AuthRepository {
             val response = api.registerOwner(ownerData)
             handleRegistrationResponse(response, isOwner = true)
         } catch (e: Exception) {
-            // Si hay error de parseo JSON pero el código es exitoso, considerarlo como éxito
             if (e.message?.contains("JSON", ignoreCase = true) == true) {
                 Result.success(AuthResponse(accessToken = "registered", token = "registered", tokenType = "Bearer"))
             } else {
@@ -64,7 +63,6 @@ class AuthRepository {
             val response = api.registerWalker(walkerData)
             handleRegistrationResponse(response, isOwner = false)
         } catch (e: Exception) {
-            // Si hay error de parseo JSON pero el código es exitoso, considerarlo como éxito
             if (e.message?.contains("JSON", ignoreCase = true) == true) {
                 Result.success(AuthResponse(accessToken = "registered", token = "registered", tokenType = "Bearer"))
             } else {
@@ -85,13 +83,11 @@ class AuthRepository {
                         return Result.success(authBody)
                     }
                 }
-                // Si el código es exitoso pero no hay body, asumir que se registró correctamente
                 Result.success(AuthResponse(accessToken = "registered", token = "registered", tokenType = "Bearer"))
             } else {
                 Result.failure(Exception("Error en registro: ${response.code()}"))
             }
         } catch (e: Exception) {
-            // Si hay error de parseo pero la respuesta fue exitosa, considerarlo como éxito
             if (response.isSuccessful) {
                 Result.success(AuthResponse(accessToken = "registered", token = "registered", tokenType = "Bearer"))
             } else {

@@ -41,7 +41,6 @@ fun DrawerMenu(
             .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp)
     ) {
-        // Header
         Spacer(modifier = Modifier.height(32.dp))
         
         Row(
@@ -74,7 +73,6 @@ fun DrawerMenu(
         
         Divider(modifier = Modifier.padding(vertical = 16.dp))
         
-        // Menu Items
         DrawerMenuItem(
             icon = Icons.Default.Home,
             title = "Inicio",

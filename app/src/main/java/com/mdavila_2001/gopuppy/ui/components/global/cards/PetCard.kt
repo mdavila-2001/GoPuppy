@@ -69,7 +69,7 @@ fun PetCard(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer), // Verde suave
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 if (photoUrl != null) {
@@ -105,7 +105,7 @@ fun PetCard(
                 Text(
                     text = species,
                     style = typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary, // Verde
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
                 )
 

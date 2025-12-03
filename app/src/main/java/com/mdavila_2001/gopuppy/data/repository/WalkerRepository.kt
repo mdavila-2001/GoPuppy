@@ -69,7 +69,6 @@ class WalkerRepository {
                 Result.failure(Exception("Error enviando ubicación"))
             }
         } catch (e: Exception) {
-            // No hacemos mucho ruido aquí porque esto se ejecuta en segundo plano
             Log.e("WalkerRepo", "Fallo silencioso envío ubicación: ${e.message}")
             Result.failure(e)
         }

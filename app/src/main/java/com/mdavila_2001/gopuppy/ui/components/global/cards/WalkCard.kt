@@ -91,7 +91,6 @@ fun WalkCard(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // Hora
                 Icon(
                     Icons.Default.Schedule,
                     null,

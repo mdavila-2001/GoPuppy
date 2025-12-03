@@ -23,8 +23,7 @@ fun NavigationApp(modifier: Modifier) {
 
     NavHost(
         navController = navController,
-        //startDestination = NavRoutes.Splash.route
-        startDestination = NavRoutes.Onboarding.route,
+        startDestination = NavRoutes.Splash.route
     ) {
         composable(NavRoutes.Splash.route) {
             SplashScreen(navController)
