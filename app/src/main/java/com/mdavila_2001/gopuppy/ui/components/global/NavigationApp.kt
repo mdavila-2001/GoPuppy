@@ -14,6 +14,8 @@ import com.mdavila_2001.gopuppy.ui.views.LandingScreen
 import com.mdavila_2001.gopuppy.ui.views.splash.SplashScreen
 import com.mdavila_2001.gopuppy.ui.views.login.LoginScreen
 import com.mdavila_2001.gopuppy.ui.views.register.RegisterScreen
+import com.mdavila_2001.gopuppy.ui.views.owner_home.OwnerHomeScreen
+import com.mdavila_2001.gopuppy.ui.views.pet_form.PetFormScreen
 
 @Composable
 fun NavigationApp(modifier: Modifier) {
@@ -44,13 +46,18 @@ fun NavigationApp(modifier: Modifier) {
             RegisterScreen(navController, isWalker)
         }
         composable(NavRoutes.OwnerHome.route) {
-            PlaceholderScreen("OwnerHome")
+            OwnerHomeScreen(navController)
         }
         composable(NavRoutes.MyPets.route) {
             PlaceholderScreen("MyPets")
         }
-        composable(NavRoutes.PetForm.route) {
-            PlaceholderScreen("PetForm")
+        composable(
+            route = NavRoutes.PetForm.route,
+            arguments = NavRoutes.PetForm.arguments
+        ) { backStackEntry ->
+            val petIdString = backStackEntry.arguments?.getString("petId")
+            val petId = petIdString?.toIntOrNull()?.takeIf { it > 0 }
+            PetFormScreen(navController, petId)
         }
         composable(NavRoutes.WalkerDetail.route) {
             PlaceholderScreen("WalkerDetail")

@@ -10,7 +10,7 @@ data class Pet (
     @SerializedName("species")
     val species: String,
     @SerializedName("notes")
-    val notes: String,
+    val notes: String?,
     @SerializedName("photoUrl")
-    val photoUrl: String
+    val photoUrl: String?
 )

@@ -15,9 +15,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +46,8 @@ import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    isWalker: Boolean = false
+    isWalker: Boolean = false,
+    viewModel: RegisterViewModel = remember { RegisterViewModel() }
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -50,16 +55,42 @@ fun RegisterScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var pricePerHour by remember { mutableStateOf("") }
 
+    val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Observar el estado de éxito y navegar
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            val route = if (isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
+            navController.navigate(route) {
+                popUpTo(NavRoutes.Landing.route) { inclusive = true }
+            }
+        }
+    }
+
+    // Mostrar errores
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.clearError()
+        }
+    }
+
     GoPuppyTheme(role = if (isWalker) "walker" else "owner") {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Spacer(modifier = Modifier.height(32.dp))
             // Logo circular
             Box(
                 modifier = Modifier
@@ -145,17 +176,16 @@ fun RegisterScreen(
             Button(
                 text = if (isWalker) "Registrarse (Paseador)" else "Registrarse (Dueño)",
                 onClick = {
-                    // TODO: Implementar lógica de registro con ViewModel
-                    if (isWalker) {
-                        navController.navigate(NavRoutes.WalkerHome.route) {
-                            popUpTo(NavRoutes.Landing.route) { inclusive = true }
-                        }
-                    } else {
-                        navController.navigate(NavRoutes.OwnerHome.route) {
-                            popUpTo(NavRoutes.Landing.route) { inclusive = true }
-                        }
-                    }
+                    viewModel.register(
+                        name = name,
+                        email = email,
+                        password = password,
+                        confirmPassword = confirmPassword,
+                        isWalker = isWalker,
+                        pricePerHour = pricePerHour.ifBlank { null }
+                    )
                 },
+                isLoading = uiState.isLoading,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -182,7 +212,17 @@ fun RegisterScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+        )
+    }
     }
 }
 
