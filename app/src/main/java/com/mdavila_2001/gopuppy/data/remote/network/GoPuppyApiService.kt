@@ -25,18 +25,18 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface GoPuppyApiService {
-    @POST("auth/client/login")
+    @POST("auth/clientlogin")
     suspend fun loginOwner(@Body loginRequest: LoginRequest): Response<AuthResponse>
     @POST("auth/clientregister")
     suspend fun registerOwner(@Body request: OwnerSignupDTO): Response<AuthResponse>
-    @POST("auth/walker/login")
+    @POST("auth/walkerlogin")
     suspend fun loginWalker(@Body loginRequest: LoginRequest): Response<AuthResponse>
     @POST("auth/walkerregister")
     suspend fun registerWalker(@Body request: WalkerSignupDTO): Response<AuthResponse>
     @GET("me")
     suspend fun getProfile(): Response<UserInfo>
 
-    @GET("/pets")
+    @GET("pets")
     suspend fun getMyPets(): Response<List<Pet>>
     @POST("pets")
     suspend fun addPet(@Body pet: PetDTO): Response<Pet>

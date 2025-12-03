@@ -79,11 +79,28 @@ class RegisterViewModel(
 
             result.fold(
                 onSuccess = { authResponse ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        isSuccess = true,
-                        isWalker = isWalker
-                    )
+                    // Después del registro exitoso, hacer login para obtener un token real
+                    viewModelScope.launch {
+                        val loginResult = authRepository.login(email, password, isWalker)
+                        loginResult.fold(
+                            onSuccess = { loginResponse ->
+                                _uiState.value = _uiState.value.copy(
+                                    isLoading = false,
+                                    isSuccess = true,
+                                    isWalker = isWalker
+                                )
+                            },
+                            onFailure = { loginException ->
+                                // Si el login falla, aún consideramos el registro exitoso
+                                _uiState.value = _uiState.value.copy(
+                                    isLoading = false,
+                                    isSuccess = true,
+                                    isWalker = isWalker,
+                                    errorMessage = "Registro exitoso pero error al iniciar sesión automáticamente"
+                                )
+                            }
+                        )
+                    }
                 },
                 onFailure = { exception ->
                     _uiState.value = _uiState.value.copy(

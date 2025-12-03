@@ -7,7 +7,7 @@ data class Pet (
     val id: Int,
     @SerializedName("name")
     val name: String,
-    @SerializedName("species")
+    @SerializedName("type")
     val species: String,
     @SerializedName("notes")
     val notes: String?,

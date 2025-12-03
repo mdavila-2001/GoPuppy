@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.mdavila_2001.gopuppy.data.remote.network.RetrofitInstance
 import com.mdavila_2001.gopuppy.smokeTests.MapTestScreen
 import com.mdavila_2001.gopuppy.ui.components.global.NavigationApp
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
@@ -18,6 +19,10 @@ import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Inicializar RetrofitInstance con el contexto de la app
+        RetrofitInstance.init(applicationContext)
+        
         enableEdgeToEdge()
         setContent {
             GoPuppyTheme {

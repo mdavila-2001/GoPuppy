@@ -30,8 +30,11 @@ class PetRepository {
         pet: PetDTO
     ): Result<Pet> {
         return try {
-            Log.d("PetRepo", "Iniciando addPet: ${pet.name}")
+            Log.d("PetRepo", "=== INICIANDO CREACIÓN DE MASCOTA ===")
+            Log.d("PetRepo", "Nombre: ${pet.name}, Tipo: ${pet.species}, Notas: ${pet.notes}")
             Log.d("PetRepo", "Token presente: ${RetrofitInstance.authToken != null}")
+            Log.d("PetRepo", "Token (primeros 30 chars): ${RetrofitInstance.authToken?.take(30) ?: "NULL"}")
+            
             val response = api.addPet(pet)
             Log.d("PetRepo", "Response code: ${response.code()}, isSuccessful: ${response.isSuccessful}")
             

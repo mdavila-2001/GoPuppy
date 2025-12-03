@@ -64,13 +64,9 @@ class PetFormViewModel : ViewModel() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
 
-            // Combinar breed y birthdate en las notas hasta que la API los soporte
+            // Combinar birthdate en las notas hasta que la API lo soporte
             val combinedNotes = buildString {
-                if (!breed.isNullOrBlank()) {
-                    append("Raza: ${breed.trim()}")
-                }
                 if (!birthdate.isNullOrBlank()) {
-                    if (isNotEmpty()) append("\n")
                     append("Fecha de Nacimiento: $birthdate")
                 }
                 if (!notes.isNullOrBlank()) {

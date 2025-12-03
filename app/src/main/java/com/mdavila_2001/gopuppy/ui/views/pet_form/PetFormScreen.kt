@@ -72,7 +72,6 @@ fun PetFormScreen(
     // Estados del formulario
     var name by remember { mutableStateOf("") }
     var species by remember { mutableStateOf("") }
-    var breed by remember { mutableStateOf("") }
     var birthdate by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
 
@@ -88,23 +87,20 @@ fun PetFormScreen(
             name = pet.name
             species = pet.species
             
-            // Parsear las notas para extraer breed, birthdate y notes reales
+            // Parsear las notas para extraer birthdate y notes reales
             val notesText = pet.notes ?: ""
             val lines = notesText.lines()
             
-            var extractedBreed = ""
             var extractedBirthdate = ""
             val remainingNotes = mutableListOf<String>()
             
             lines.forEach { line ->
                 when {
-                    line.startsWith("Raza: ") -> extractedBreed = line.removePrefix("Raza: ")
                     line.startsWith("Fecha de Nacimiento: ") -> extractedBirthdate = line.removePrefix("Fecha de Nacimiento: ")
                     line.isNotBlank() -> remainingNotes.add(line)
                 }
             }
             
-            breed = extractedBreed
             birthdate = extractedBirthdate
             notes = remainingNotes.joinToString("\n")
         }
@@ -220,52 +216,26 @@ fun PetFormScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Fila: Tipo y Raza
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Tipo",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 8.dp)
+            // Campo Tipo
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Tipo",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = species,
+                    onValueChange = { species = it },
+                    placeholder = { Text("Perro, Gato, etc.") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                     )
-                    OutlinedTextField(
-                        value = species,
-                        onValueChange = { species = it },
-                        placeholder = { Text("Perro") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                        )
-                    )
-                }
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Raza",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    OutlinedTextField(
-                        value = breed,
-                        onValueChange = { breed = it },
-                        placeholder = { Text("Husky") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                        )
-                    )
-                }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -361,7 +331,7 @@ fun PetFormScreen(
                         petId = petId,
                         name = name,
                         species = species,
-                        breed = breed.ifBlank { null },
+                        breed = null,
                         birthdate = birthdate.ifBlank { null },
                         notes = notes.ifBlank { null },
                         onSuccess = { navController.navigateUp() }
