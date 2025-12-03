@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
-import com.mdavila_2001.gopuppy.ui.views.LandingScreen
+import com.mdavila_2001.gopuppy.ui.views.OnboardingScreen
 
 @Composable
 fun NavigationApp(modifier: Modifier) {
@@ -19,13 +19,13 @@ fun NavigationApp(modifier: Modifier) {
     NavHost(
         navController = navController,
         //startDestination = NavRoutes.Splash.route
-        startDestination = NavRoutes.Landing.route,
+        startDestination = NavRoutes.Onboarding.route,
     ) {
         composable(NavRoutes.Splash.route) {
             PlaceholderScreen("Splash")
         }
-        composable(NavRoutes.Landing.route) {
-            LandingScreen(navController)
+        composable(NavRoutes.Onboarding.route) {
+            OnboardingScreen(navController)
         }
         composable(NavRoutes.Login.route) {
             PlaceholderScreen("Login")
