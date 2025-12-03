@@ -63,7 +63,7 @@ fun RegisterScreen(
         if (uiState.isSuccess) {
             val route = if (isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
             navController.navigate(route) {
-                popUpTo(NavRoutes.Landing.route) { inclusive = true }
+                popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
             }
         }
     }
@@ -191,7 +191,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ¿Ya tienes una cuenta? Inicia sesión
             Text(
                 text = "¿Ya tienes una cuenta?",
                 style = MaterialTheme.typography.bodyMedium,

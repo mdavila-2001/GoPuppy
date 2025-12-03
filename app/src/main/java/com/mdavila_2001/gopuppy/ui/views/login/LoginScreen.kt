@@ -75,7 +75,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Título
             Text(
                 text = "GoPuppy",
                 style = MaterialTheme.typography.headlineMedium,
@@ -93,7 +92,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo de correo o usuario
             Input(
                 text = email,
                 onValueChange = { email = it },
@@ -103,7 +101,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo de contraseña
             PasswordInput(
                 password = password,
                 onValueChange = { password = it },
@@ -113,7 +110,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Olvidé mi contraseña
             TextButton(
                 onClick = { /* TODO: Implementar recuperación de contraseña */ },
                 modifier = Modifier.align(Alignment.End)
@@ -127,18 +123,16 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botón Iniciar Sesión
             Button(
-                text = if (isWalker) "Iniciar Sesión (Paseador)" else "Iniciar Sesión (Dueño)",
+                text = "Iniciar Sesión",
                 onClick = {
-                    // TODO: Implementar lógica de login con ViewModel
                     if (isWalker) {
                         navController.navigate(NavRoutes.WalkerHome.route) {
-                            popUpTo(NavRoutes.Landing.route) { inclusive = true }
+                            popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
                         }
                     } else {
                         navController.navigate(NavRoutes.OwnerHome.route) {
-                            popUpTo(NavRoutes.Landing.route) { inclusive = true }
+                            popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
                         }
                     }
                 },
@@ -147,7 +141,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ¿No tienes cuenta? Registrarse
             Text(
                 text = "¿No tienes cuenta?",
                 style = MaterialTheme.typography.bodyMedium,
@@ -157,7 +150,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedButton(
-                text = if (isWalker) "Registrarse (Paseador)" else "Registrarse (Dueño)",
+                text = "Registrarse",
                 onClick = {
                     navController.navigate(NavRoutes.Register.createRoute(isWalker))
                 },
@@ -170,7 +163,7 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    GoPuppyTheme {
+    GoPuppyTheme(role = "owner") {
         LoginScreen(navController = rememberNavController(), isWalker = false)
     }
 }
@@ -178,7 +171,7 @@ fun LoginScreenPreview() {
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenWalkerPreview() {
-    GoPuppyTheme {
+    GoPuppyTheme(role = "walker") {
         LoginScreen(navController = rememberNavController(), isWalker = true)
     }
 }
