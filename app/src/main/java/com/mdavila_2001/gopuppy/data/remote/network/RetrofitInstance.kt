@@ -1,6 +1,7 @@
 package com.mdavila_2001.gopuppy.data.remote.network
 
 import android.content.Context
+import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -13,10 +14,14 @@ object RetrofitInstance {
     private const val PREFS_NAME = "gopuppy_prefs"
     private const val KEY_TOKEN = "auth_token"
 
+    @Volatile
     private var appContext: Context? = null
     
     fun init(context: Context) {
-        appContext = context.applicationContext
+        if (appContext == null) {
+            appContext = context.applicationContext
+            android.util.Log.d("RetrofitInstance", "Contexto inicializado correctamente")
+        }
     }
 
     var authToken: String? = null
@@ -53,8 +58,32 @@ object RetrofitInstance {
         chain.proceed(requestBuilder.build())
     }
 
+    private val responseInterceptor = Interceptor { chain ->
+        val request = chain.request()
+        val response = chain.proceed(request)
+        
+        // Log detallado de la respuesta ANTES de que Gson la procese
+        if (request.url.toString().contains("/walks")) {
+            android.util.Log.d("RetrofitResponse", "========================================")
+            android.util.Log.d("RetrofitResponse", "URL: ${request.url}")
+            android.util.Log.d("RetrofitResponse", "Method: ${request.method}")
+            android.util.Log.d("RetrofitResponse", "Response Code: ${response.code}")
+            android.util.Log.d("RetrofitResponse", "Response Message: ${response.message}")
+            android.util.Log.d("RetrofitResponse", "Content-Type: ${response.header("Content-Type")}")
+            
+            // Leer el body sin consumirlo
+            val responseBody = response.peekBody(Long.MAX_VALUE)
+            val bodyString = responseBody.string()
+            android.util.Log.d("RetrofitResponse", "Body (primeros 1000 chars): ${bodyString.take(1000)}")
+            android.util.Log.d("RetrofitResponse", "========================================")
+        }
+        
+        response
+    }
+
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
+        .addInterceptor(responseInterceptor)
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         })
@@ -62,11 +91,16 @@ object RetrofitInstance {
         .readTimeout(30, TimeUnit.SECONDS)
         .build()
 
+    private val gson = GsonBuilder()
+        .setLenient() // Aceptar JSON no estricto
+        // Por defecto Gson NO serializa campos nulos, así que no llamamos .serializeNulls()
+        .create()
+
     val apiService: GoPuppyApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(GoPuppyApiService::class.java)
     }

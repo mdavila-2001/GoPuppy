@@ -14,14 +14,26 @@ class PetRepository {
 
     suspend fun getMyPets(): Result<List<Pet>> {
         return try {
+            Log.d("PetRepo", "=== INICIANDO CARGA DE MASCOTAS ===")
+            Log.d("PetRepo", "Token presente: ${RetrofitInstance.authToken != null}")
+            
             val response = api.getMyPets()
+            Log.d("PetRepo", "Response code: ${response.code()}, isSuccessful: ${response.isSuccessful}")
+            
             if (response.isSuccessful) {
-                Result.success(response.body() ?: emptyList())
+                val pets = response.body() ?: emptyList()
+                Log.d("PetRepo", "Mascotas cargadas: ${pets.size}")
+                pets.forEach { pet ->
+                    Log.d("PetRepo", "Pet: id=${pet.id}, name=${pet.name}, type=${pet.type}")
+                }
+                Result.success(pets)
             } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("PetRepo", "Error al cargar mascotas: ${response.code()} - $errorBody")
                 Result.failure(Exception("Error al cargar mascotas: ${response.code()}"))
             }
         } catch (e: Exception) {
-            Log.e("PetRepo", "Error getMyPets: ${e.message}")
+            Log.e("PetRepo", "Error getMyPets exception: ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -31,7 +43,7 @@ class PetRepository {
     ): Result<Pet> {
         return try {
             Log.d("PetRepo", "=== INICIANDO CREACIÓN DE MASCOTA ===")
-            Log.d("PetRepo", "Nombre: ${pet.name}, Tipo: ${pet.species}, Notas: ${pet.notes}")
+            Log.d("PetRepo", "Nombre: ${pet.name}, Tipo: ${pet.type}, Notas: ${pet.notes}")
             Log.d("PetRepo", "Token presente: ${RetrofitInstance.authToken != null}")
             Log.d("PetRepo", "Token (primeros 30 chars): ${RetrofitInstance.authToken?.take(30) ?: "NULL"}")
             

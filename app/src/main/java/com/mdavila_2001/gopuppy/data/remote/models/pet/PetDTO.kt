@@ -6,7 +6,7 @@ data class PetDTO (
     @SerializedName("name")
     val name: String,
     @SerializedName("type")
-    val species: String,
+    val type: String,
     @SerializedName("notes")
     val notes: String
 )

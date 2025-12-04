@@ -39,7 +39,7 @@ import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 @Composable
 fun PetCard(
     name: String,
-    species: String,
+    type: String?,
     notes: String?,
     modifier: Modifier = Modifier,
     photoUrl: String? = null,
@@ -72,12 +72,15 @@ fun PetCard(
                     .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
-                if (photoUrl != null) {
+                if (!photoUrl.isNullOrBlank()) {
                     AsyncImage(
                         model = photoUrl,
                         contentDescription = "Foto de $name",
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        onError = {
+                            // Si falla la carga, mostrar el icono por defecto
+                        }
                     )
                 } else {
                     Icon(
@@ -103,22 +106,11 @@ fun PetCard(
                 )
 
                 Text(
-                    text = species,
+                    text = type ?: "Sin tipo",
                     style = typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
                 )
-
-                if (!notes.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = notes,
-                        style = typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
             }
 
             IconButton(
@@ -163,7 +155,7 @@ fun PetCardPreview() {
     GoPuppyTheme(role = "owner") {
         PetCard(
             name = "Max",
-            species = "Perro",
+            type = "Perro",
             notes = "Le encanta jugar en el parque.",
             photoUrl = null,
             onEditClick = {},

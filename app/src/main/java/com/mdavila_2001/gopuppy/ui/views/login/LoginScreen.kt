@@ -18,6 +18,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mdavila_2001.gopuppy.R
@@ -43,10 +46,28 @@ import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 @Composable
 fun LoginScreen(
     navController: NavController,
-    isWalker: Boolean = false
+    isWalker: Boolean = false,
+    viewModel: LoginViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Navegar al home cuando el login sea exitoso
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            if (uiState.isWalker) {
+                navController.navigate(NavRoutes.WalkerHome.route) {
+                    popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
+                }
+            } else {
+                navController.navigate(NavRoutes.OwnerHome.route) {
+                    popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
+                }
+            }
+            viewModel.resetState()
+        }
+    }
 
     GoPuppyTheme(role = if (isWalker) "walker" else "owner") {
         Column(
@@ -123,19 +144,27 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Mostrar mensaje de error si existe
+            if (uiState.errorMessage != null) {
+                Text(
+                    text = uiState.errorMessage ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             Button(
                 text = "Iniciar Sesión",
                 onClick = {
-                    if (isWalker) {
-                        navController.navigate(NavRoutes.WalkerHome.route) {
-                            popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
-                        }
-                    } else {
-                        navController.navigate(NavRoutes.OwnerHome.route) {
-                            popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
-                        }
+                    if (email.isNotBlank() && password.isNotBlank()) {
+                        viewModel.login(email, password, isWalker)
                     }
                 },
+                isLoading = uiState.isLoading,
+                enabled = email.isNotBlank() && password.isNotBlank(),
                 modifier = Modifier.fillMaxWidth()
             )
 

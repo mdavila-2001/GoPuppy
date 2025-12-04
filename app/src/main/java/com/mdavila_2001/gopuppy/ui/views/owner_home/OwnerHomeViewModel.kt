@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.viewmodels
+package com.mdavila_2001.gopuppy.ui.views.owner_home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -39,6 +39,30 @@ class OwnerHomeViewModel : ViewModel() {
                 _state.value = _state.value.copy(
                     isLoading = false,
                     errorMessage = error.message ?: "Error al cargar las mascotas"
+                )
+            }
+        }
+    }
+
+    fun deletePet(petId: Int) {
+        viewModelScope.launch {
+            try {
+                Log.d("OwnerHomeVM", "Eliminando mascota con ID: $petId")
+                
+                repository.deletePet(petId).onSuccess {
+                    Log.d("OwnerHomeVM", "Mascota eliminada exitosamente")
+                    // Recargar la lista de mascotas
+                    loadPets()
+                }.onFailure { error ->
+                    Log.e("OwnerHomeVM", "Error al eliminar mascota: ${error.message}", error)
+                    _state.value = _state.value.copy(
+                        errorMessage = "Error al eliminar: ${error.message}"
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("OwnerHomeVM", "Excepción al eliminar: ${e.message}", e)
+                _state.value = _state.value.copy(
+                    errorMessage = "Error inesperado: ${e.message}"
                 )
             }
         }

@@ -53,7 +53,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.mdavila_2001.gopuppy.ui.viewmodels.PetFormViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -71,7 +70,7 @@ fun PetFormScreen(
 
     // Estados del formulario
     var name by remember { mutableStateOf("") }
-    var species by remember { mutableStateOf("") }
+    var type by remember { mutableStateOf("") }
     var birthdate by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
 
@@ -85,7 +84,7 @@ fun PetFormScreen(
     LaunchedEffect(state.pet) {
         state.pet?.let { pet ->
             name = pet.name
-            species = pet.species
+            type = pet.type ?: ""
             
             // Parsear las notas para extraer birthdate y notes reales
             val notesText = pet.notes ?: ""
@@ -225,8 +224,8 @@ fun PetFormScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = species,
-                    onValueChange = { species = it },
+                    value = type,
+                    onValueChange = { type = it },
                     placeholder = { Text("Perro, Gato, etc.") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -330,7 +329,7 @@ fun PetFormScreen(
                     viewModel.savePet(
                         petId = petId,
                         name = name,
-                        species = species,
+                        type = type,
                         breed = null,
                         birthdate = birthdate.ifBlank { null },
                         notes = notes.ifBlank { null },

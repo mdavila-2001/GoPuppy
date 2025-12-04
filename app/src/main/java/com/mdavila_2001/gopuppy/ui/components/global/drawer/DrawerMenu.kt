@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -28,6 +31,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.mdavila_2001.gopuppy.data.remote.network.RetrofitInstance
+import com.mdavila_2001.gopuppy.ui.NavRoutes
 
 @Composable
 fun DrawerMenu(
@@ -81,14 +86,58 @@ fun DrawerMenu(
             }
         )
         
+        if (!isWalker) {
+            DrawerMenuItem(
+                icon = Icons.Default.DirectionsWalk,
+                title = "Solicitar Paseo",
+                onClick = {
+                    navController.navigate(NavRoutes.RequestWalk.route)
+                    onCloseDrawer()
+                }
+            )
+            
+            DrawerMenuItem(
+                icon = Icons.Default.Search,
+                title = "Buscar Paseadores",
+                onClick = {
+                    navController.navigate(NavRoutes.WalkerSearch.route)
+                    onCloseDrawer()
+                }
+            )
+            
+            DrawerMenuItem(
+                icon = Icons.Default.Pets,
+                title = "Registrar Mascota",
+                onClick = {
+                    navController.navigate(NavRoutes.PetForm.route)
+                    onCloseDrawer()
+                }
+            )
+        }
+        
         DrawerMenuItem(
             icon = Icons.Default.Person,
             title = "Mi Perfil",
             onClick = {
-                // TODO: Navegar a perfil
+                if (isWalker) {
+                    navController.navigate(NavRoutes.WalkerProfile.route)
+                } else {
+                    navController.navigate(NavRoutes.OwnerProfile.route)
+                }
                 onCloseDrawer()
             }
         )
+        
+        if (!isWalker) {
+            DrawerMenuItem(
+                icon = Icons.Default.DirectionsWalk,
+                title = "Historial de Paseos",
+                onClick = {
+                    navController.navigate(NavRoutes.WalkHistory.route)
+                    onCloseDrawer()
+                }
+            )
+        }
         
         DrawerMenuItem(
             icon = Icons.Default.Settings,
@@ -107,7 +156,13 @@ fun DrawerMenu(
             icon = Icons.Default.ExitToApp,
             title = "Cerrar Sesión",
             onClick = {
-                // TODO: Implementar logout
+                // Limpiar el token de autenticación
+                RetrofitInstance.authToken = null
+                
+                // Navegar a la pantalla de Onboarding y limpiar el back stack
+                navController.navigate(NavRoutes.Onboarding.route) {
+                    popUpTo(0) { inclusive = true }
+                }
                 onCloseDrawer()
             }
         )

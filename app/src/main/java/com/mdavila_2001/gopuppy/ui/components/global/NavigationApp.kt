@@ -16,6 +16,11 @@ import com.mdavila_2001.gopuppy.ui.views.login.LoginScreen
 import com.mdavila_2001.gopuppy.ui.views.register.RegisterScreen
 import com.mdavila_2001.gopuppy.ui.views.owner_home.OwnerHomeScreen
 import com.mdavila_2001.gopuppy.ui.views.pet_form.PetFormScreen
+import com.mdavila_2001.gopuppy.ui.views.requestwalk.RequestWalkScreen
+import com.mdavila_2001.gopuppy.ui.views.walker_home.WalkerHomeScreen
+import com.mdavila_2001.gopuppy.ui.views.walker_home.WalkerHomeViewModel
+import com.mdavila_2001.gopuppy.ui.views.walker_search.WalkerSearchScreen
+import com.mdavila_2001.gopuppy.ui.views.walker_search.WalkerSearchViewModel
 
 @Composable
 fun NavigationApp(modifier: Modifier) {
@@ -59,6 +64,18 @@ fun NavigationApp(modifier: Modifier) {
             val petId = petIdString?.toIntOrNull()?.takeIf { it > 0 }
             PetFormScreen(navController, petId)
         }
+        composable(NavRoutes.RequestWalk.route) {
+            RequestWalkScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAddPet = { navController.navigate(NavRoutes.PetForm.route) }
+            )
+        }
+        composable(NavRoutes.WalkerSearch.route) {
+            WalkerSearchScreen(
+                viewModel = WalkerSearchViewModel(),
+                navController = navController
+            )
+        }
         composable(NavRoutes.WalkerDetail.route) {
             PlaceholderScreen("WalkerDetail")
         }
@@ -66,7 +83,7 @@ fun NavigationApp(modifier: Modifier) {
             PlaceholderScreen("BookWalk")
         }
         composable(NavRoutes.WalkerHome.route) {
-            PlaceholderScreen("WalkerHome")
+            WalkerHomeScreen(viewModel = WalkerHomeViewModel(), navController = navController)
         }
         composable(NavRoutes.Requests.route) {
             PlaceholderScreen("Requests")
@@ -74,8 +91,26 @@ fun NavigationApp(modifier: Modifier) {
         composable(NavRoutes.Schedule.route) {
             PlaceholderScreen("Schedule")
         }
-        composable(NavRoutes.WalkDetail.route) {
-            PlaceholderScreen("WalkDetail")
+        composable(
+            route = NavRoutes.WalkDetail.route,
+            arguments = NavRoutes.WalkDetail.arguments
+        ) { backStackEntry ->
+            val walkId = backStackEntry.arguments?.getInt("walkId") ?: 0
+            val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
+            com.mdavila_2001.gopuppy.ui.views.walk_detail.WalkDetailScreen(
+                navController = navController,
+                walkId = walkId,
+                isWalker = isWalker
+            )
+        }
+        composable(NavRoutes.OwnerProfile.route) {
+            com.mdavila_2001.gopuppy.ui.views.owner_profile.OwnerProfileScreen(navController)
+        }
+        composable(NavRoutes.WalkerProfile.route) {
+            com.mdavila_2001.gopuppy.ui.views.walker_profile.WalkerProfileScreen(navController)
+        }
+        composable(NavRoutes.WalkHistory.route) {
+            com.mdavila_2001.gopuppy.ui.views.walk_history.WalkHistoryScreen(navController)
         }
     }
 }

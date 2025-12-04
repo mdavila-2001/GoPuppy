@@ -31,14 +31,61 @@ class WalkRepository {
 
     suspend fun createWalk(dto: WalkDTO): Result<Walk> {
         return try {
+            Log.d("WalkRepo", "=== CREANDO PASEO ===")
+            Log.d("WalkRepo", "petId: ${dto.petId}")
+            Log.d("WalkRepo", "scheduledAt: ${dto.scheduledAt}")
+            Log.d("WalkRepo", "durationMinutes: ${dto.durationMinutes}")
+            Log.d("WalkRepo", "walkerId: ${dto.walkerId}")
+            Log.d("WalkRepo", "addressId: ${dto.addressId}")
+            Log.d("WalkRepo", "notes: ${dto.notes}")
+            
             val response = api.createWalk(dto)
+            
+            Log.d("WalkRepo", "Código de respuesta: ${response.code()}")
+            Log.d("WalkRepo", "Es exitoso: ${response.isSuccessful}")
+            Log.d("WalkRepo", "Headers: ${response.headers()}")
+            
             if (response.isSuccessful && response.body() != null) {
+                Log.d("WalkRepo", "✅ Paseo creado exitosamente: ${response.body()!!.id}")
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Error solicitando paseo: ${response.message()}"))
+                val errorBody = response.errorBody()?.string()
+                val errorBodyPreview = errorBody?.take(500) ?: "NULL"
+                Log.e("WalkRepo", "❌ Error Body (primeros 500 chars): $errorBodyPreview")
+                Log.e("WalkRepo", "❌ Response Code: ${response.code()}")
+                Log.e("WalkRepo", "❌ Response Message: ${response.message()}")
+                Log.e("WalkRepo", "❌ Content-Type: ${response.headers()["Content-Type"]}")
+                
+                // Extraer mensaje útil si el error body es texto plano
+                val cleanError = when {
+                    errorBody?.contains("<!DOCTYPE", ignoreCase = true) == true -> 
+                        "El servidor devolvió HTML. Revisa la URL del API"
+                    errorBody?.contains("walker", ignoreCase = true) == true -> 
+                        "El backend requiere un paseador asignado (walker_id)"
+                    errorBody?.contains("address", ignoreCase = true) == true -> 
+                        "El backend requiere una dirección (address_id)"
+                    else -> errorBody
+                }
+                
+                val errorMsg = when (response.code()) {
+                    400 -> "Datos inválidos: $cleanError"
+                    401 -> "No autorizado. Inicia sesión nuevamente"
+                    404 -> "Recurso no encontrado: $cleanError"
+                    422 -> "Error de validación: $cleanError"
+                    500 -> "Error del servidor: $cleanError"
+                    else -> "Error ${response.code()}: $cleanError"
+                }
+                Result.failure(Exception(errorMsg))
             }
+        } catch (e: com.google.gson.JsonSyntaxException) {
+            Log.e("WalkRepo", "💥 Error de parseo JSON", e)
+            Log.e("WalkRepo", "El backend no está devolviendo JSON válido")
+            Result.failure(Exception("El servidor devolvió una respuesta inválida. Contacta al administrador del backend."))
         } catch (e: Exception) {
-            Result.failure(e)
+            Log.e("WalkRepo", "💥 Excepción al crear paseo", e)
+            Log.e("WalkRepo", "Tipo de error: ${e.javaClass.simpleName}")
+            Log.e("WalkRepo", "Mensaje: ${e.message}")
+            Result.failure(Exception("Error de conexión: ${e.message}"))
         }
     }
 

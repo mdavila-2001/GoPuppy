@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.viewmodels
+package com.mdavila_2001.gopuppy.ui.views.pet_form
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -45,7 +45,7 @@ class PetFormViewModel : ViewModel() {
     fun savePet(
         petId: Int?,
         name: String,
-        species: String,
+        type: String,
         breed: String?,
         birthdate: String?,
         notes: String?,
@@ -56,7 +56,7 @@ class PetFormViewModel : ViewModel() {
             return
         }
 
-        if (species.isBlank()) {
+        if (type.isBlank()) {
             _state.value = _state.value.copy(errorMessage = "El tipo es obligatorio")
             return
         }
@@ -77,11 +77,11 @@ class PetFormViewModel : ViewModel() {
 
             val petDTO = PetDTO(
                 name = name.trim(),
-                species = species.trim(),
+                type = type.trim(),
                 notes = combinedNotes ?: ""  // Enviar string vacío en lugar de null
             )
 
-            Log.d("PetFormVM", "Guardando mascota: name='${petDTO.name}', species='${petDTO.species}', notes='${petDTO.notes}'")
+            Log.d("PetFormVM", "Guardando mascota: name='${petDTO.name}', type='${petDTO.type}', notes='${petDTO.notes}'")
             Log.d("PetFormVM", "PetId: $petId, isUpdate: ${petId != null && petId > 0}")
 
             val result = if (petId != null && petId > 0) {

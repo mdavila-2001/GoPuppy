@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class WalkDTO (
     @SerializedName("walker_id")
-    val walkerId: Int,
+    val walkerId: Int? = null,
     @SerializedName("pet_id")
     val petId: Int,
     @SerializedName("scheduled_at")
@@ -12,6 +12,6 @@ data class WalkDTO (
     @SerializedName("duration_minutes")
     val durationMinutes: Int,
     @SerializedName("user_address_id")
-    val addressId: Int,
-    val notes: String?
+    val addressId: Int? = null,
+    val notes: String? = null
 )

@@ -41,6 +41,9 @@ sealed class NavRoutes(val route: String, val arguments: List<NamedNavArgument> 
         fun createRoute(petId: Int? = null) = "pet_form?petId=${petId ?: -1}"
     }
 
+    object RequestWalk : NavRoutes("request_walk")
+    object WalkerSearch : NavRoutes("walker_search")
+
     object WalkerDetail : NavRoutes("walker_detail/{walkerId}") {
         fun createRoute(walkerId: Int) = "walker_detail/$walkerId"
     }
@@ -53,7 +56,22 @@ sealed class NavRoutes(val route: String, val arguments: List<NamedNavArgument> 
     object Requests : NavRoutes("walker_requests")
     object Schedule : NavRoutes("walker_schedule")
 
-    object WalkDetail : NavRoutes("walk_detail/{walkId}") {
-        fun createRoute(walkId: Int) = "walk_detail/$walkId"
+    object WalkDetail : NavRoutes(
+        route = "walk_detail/{walkId}?isWalker={isWalker}",
+        arguments = listOf(
+            navArgument("walkId") {
+                type = NavType.IntType
+            },
+            navArgument("isWalker") {
+                type = NavType.BoolType
+                defaultValue = false
+            }
+        )
+    ) {
+        fun createRoute(walkId: Int, isWalker: Boolean = false) = "walk_detail/$walkId?isWalker=$isWalker"
     }
+
+    object OwnerProfile : NavRoutes("owner_profile")
+    object WalkerProfile : NavRoutes("walker_profile")
+    object WalkHistory : NavRoutes("walk_history")
 }
