@@ -1,6 +1,7 @@
 package com.mdavila_2001.gopuppy.ui.views.register
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 data class RegisterUiState(
     val isLoading: Boolean = false,
@@ -31,10 +33,10 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         password: String,
         confirmPassword: String,
         isWalker: Boolean,
-        pricePerHour: String? = null
+        pricePerHour: String? = null,
+        photoFile: File? = null
     ) {
         viewModelScope.launch {
-            // Validaciones básicas
             if (name.isBlank() || email.isBlank() || password.isBlank()) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Todos los campos son obligatorios"
@@ -79,29 +81,25 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
             }
 
             result.fold(
-                onSuccess = { authResponse ->
-                    // Después del registro exitoso, hacer login para obtener un token real
-                    viewModelScope.launch {
-                        val loginResult = authRepository.login(email, password, isWalker)
-                        loginResult.fold(
-                            onSuccess = { loginResponse ->
-                                _uiState.value = _uiState.value.copy(
-                                    isLoading = false,
-                                    isSuccess = true,
-                                    isWalker = isWalker
-                                )
-                            },
-                            onFailure = { loginException ->
-                                // Si el login falla, aún consideramos el registro exitoso
-                                _uiState.value = _uiState.value.copy(
-                                    isLoading = false,
-                                    isSuccess = true,
-                                    isWalker = isWalker,
-                                    errorMessage = "Registro exitoso pero error al iniciar sesión automáticamente"
-                                )
+                onSuccess = {
+                    if (photoFile != null) {
+                        try {
+                            if (isWalker) {
+                                authRepository.uploadWalkerPhoto(photoFile)
+                            } else {
+                                authRepository.uploadOwnerPhoto(photoFile)
                             }
-                        )
+                            Log.d("RegisterVM", "Foto de perfil subida correctamente")
+                        } catch (e: Exception) {
+                            Log.e("RegisterVM", "Error subiendo foto: ${e.message}")
+                        }
                     }
+
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                        isWalker = isWalker
+                    )
                 },
                 onFailure = { exception ->
                     _uiState.value = _uiState.value.copy(

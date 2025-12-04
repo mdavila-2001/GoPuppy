@@ -1,7 +1,13 @@
 package com.mdavila_2001.gopuppy.ui.views.register
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -29,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,7 +48,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil3.compose.AsyncImage
 import com.mdavila_2001.gopuppy.R
+import com.mdavila_2001.gopuppy.ui.FileUtils
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
 import com.mdavila_2001.gopuppy.ui.components.global.inputs.Input
@@ -50,6 +63,17 @@ fun RegisterScreen(
     isWalker: Boolean = false,
     viewModel: RegisterViewModel = viewModel()
 ) {
+
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+    }
+
+    val context = LocalContext.current
+
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -59,7 +83,6 @@ fun RegisterScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Observar el estado de éxito y navegar
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             val route = if (isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
@@ -69,7 +92,6 @@ fun RegisterScreen(
         }
     }
 
-    // Mostrar errores
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
@@ -108,6 +130,44 @@ fun RegisterScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                        .clickable {
+                            // Abrir galería
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selectedImageUri != null) {
+                        AsyncImage(
+                            model = selectedImageUri,
+                            contentDescription = "Foto seleccionada",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Default.Add, // O Icons.Default.Person
+                                contentDescription = "Subir Foto",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Text(
+                                text = "Foto",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
 
             // Título
             Text(
@@ -177,13 +237,18 @@ fun RegisterScreen(
             Button(
                 text = if (isWalker) "Registrarse (Paseador)" else "Registrarse (Dueño)",
                 onClick = {
+                    val photoFile = selectedImageUri?.let { uri ->
+                        FileUtils.getFileFromUri(context, uri)
+                    }
+
                     viewModel.register(
                         name = name,
                         email = email,
                         password = password,
                         confirmPassword = confirmPassword,
                         isWalker = isWalker,
-                        pricePerHour = pricePerHour.ifBlank { null }
+                        pricePerHour = pricePerHour.ifBlank { null },
+                        photoFile = photoFile
                     )
                 },
                 isLoading = uiState.isLoading,
