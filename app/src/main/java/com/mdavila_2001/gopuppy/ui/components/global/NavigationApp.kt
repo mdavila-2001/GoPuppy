@@ -50,6 +50,18 @@ fun NavigationApp(modifier: Modifier) {
             val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
             RegisterScreen(navController, isWalker)
         }
+        composable(
+            route = NavRoutes.WelcomeTransition.route,
+            arguments = NavRoutes.WelcomeTransition.arguments
+        ) { backStackEntry ->
+            val userName = backStackEntry.arguments?.getString("userName") ?: "Usuario"
+            val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
+            com.mdavila_2001.gopuppy.ui.views.welcome.WelcomeTransitionScreen(
+                navController = navController,
+                userName = userName,
+                isWalker = isWalker
+            )
+        }
         composable(NavRoutes.OwnerHome.route) {
             OwnerHomeScreen(navController)
         }

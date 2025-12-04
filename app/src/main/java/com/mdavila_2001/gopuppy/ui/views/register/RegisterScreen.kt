@@ -58,11 +58,12 @@ fun RegisterScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Observar el estado de éxito y navegar
+    // Observar el estado de éxito y navegar a la pantalla de transición
     LaunchedEffect(uiState.isSuccess) {
-        if (uiState.isSuccess) {
-            val route = if (isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
-            navController.navigate(route) {
+        if (uiState.isSuccess && uiState.userName != null) {
+            navController.navigate(
+                NavRoutes.WelcomeTransition.createRoute(uiState.userName!!, isWalker)
+            ) {
                 popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
             }
         }

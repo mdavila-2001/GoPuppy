@@ -14,7 +14,8 @@ data class RegisterUiState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val errorMessage: String? = null,
-    val isWalker: Boolean = false
+    val isWalker: Boolean = false,
+    val userName: String? = null
 )
 
 class RegisterViewModel(
@@ -84,18 +85,35 @@ class RegisterViewModel(
                         val loginResult = authRepository.login(email, password, isWalker)
                         loginResult.fold(
                             onSuccess = { loginResponse ->
-                                _uiState.value = _uiState.value.copy(
-                                    isLoading = false,
-                                    isSuccess = true,
-                                    isWalker = isWalker
+                                // Obtener el perfil del usuario para obtener su nombre
+                                val profileResult = authRepository.getProfile()
+                                profileResult.fold(
+                                    onSuccess = { userInfo ->
+                                        _uiState.value = _uiState.value.copy(
+                                            isLoading = false,
+                                            isSuccess = true,
+                                            isWalker = isWalker,
+                                            userName = userInfo.name
+                                        )
+                                    },
+                                    onFailure = {
+                                        // Si falla obtener el perfil, usar el nombre ingresado
+                                        _uiState.value = _uiState.value.copy(
+                                            isLoading = false,
+                                            isSuccess = true,
+                                            isWalker = isWalker,
+                                            userName = name
+                                        )
+                                    }
                                 )
                             },
                             onFailure = { loginException ->
-                                // Si el login falla, aún consideramos el registro exitoso
+                                // Si el login falla, usar el nombre ingresado
                                 _uiState.value = _uiState.value.copy(
                                     isLoading = false,
                                     isSuccess = true,
                                     isWalker = isWalker,
+                                    userName = name,
                                     errorMessage = "Registro exitoso pero error al iniciar sesión automáticamente"
                                 )
                             }

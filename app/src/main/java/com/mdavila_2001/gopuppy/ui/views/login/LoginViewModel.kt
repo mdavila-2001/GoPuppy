@@ -12,7 +12,8 @@ data class LoginUiState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val errorMessage: String? = null,
-    val isWalker: Boolean = false
+    val isWalker: Boolean = false,
+    val userName: String? = null
 )
 
 class LoginViewModel(
@@ -33,10 +34,26 @@ class LoginViewModel(
 
             result.fold(
                 onSuccess = { loginResponse ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        isSuccess = true,
-                        isWalker = isWalker
+                    // Obtener el perfil del usuario para obtener su nombre
+                    val profileResult = authRepository.getProfile()
+                    profileResult.fold(
+                        onSuccess = { userInfo ->
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                isSuccess = true,
+                                isWalker = isWalker,
+                                userName = userInfo.name
+                            )
+                        },
+                        onFailure = {
+                            // Si falla obtener el perfil, aún así consideramos exitoso el login
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                isSuccess = true,
+                                isWalker = isWalker,
+                                userName = "Usuario"
+                            )
+                        }
                     )
                 },
                 onFailure = { exception ->

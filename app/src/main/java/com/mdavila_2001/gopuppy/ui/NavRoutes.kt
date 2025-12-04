@@ -27,6 +27,21 @@ sealed class NavRoutes(val route: String, val arguments: List<NamedNavArgument> 
         fun createRoute(isWalker: Boolean) = "register/$isWalker"
     }
 
+    object WelcomeTransition : NavRoutes(
+        route = "welcome_transition/{userName}/{isWalker}",
+        arguments = listOf(
+            navArgument("userName") {
+                type = NavType.StringType
+            },
+            navArgument("isWalker") {
+                type = NavType.BoolType
+                defaultValue = false
+            }
+        )
+    ) {
+        fun createRoute(userName: String, isWalker: Boolean) = "welcome_transition/$userName/$isWalker"
+    }
+
     object OwnerHome : NavRoutes("owner_home")
     object MyPets : NavRoutes("my_pets")
 
