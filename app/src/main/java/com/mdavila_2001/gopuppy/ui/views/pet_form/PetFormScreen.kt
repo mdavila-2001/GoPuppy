@@ -1,8 +1,13 @@
 package com.mdavila_2001.gopuppy.ui.views.pet_form
 
 import android.app.DatePickerDialog
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,11 +53,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
+import com.mdavila_2001.gopuppy.ui.FileUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -74,6 +82,15 @@ fun PetFormScreen(
     var birthdate by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
 
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var currentPhotoUrl by remember { mutableStateOf<String?>(null) }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+    }
+
     // Cargar datos si es edición
     LaunchedEffect(petId) {
         if (petId != null && petId > 0) {
@@ -85,6 +102,8 @@ fun PetFormScreen(
         state.pet?.let { pet ->
             name = pet.name
             type = pet.type ?: ""
+
+            currentPhotoUrl = pet.photoUrl
             
             // Parsear las notas para extraer birthdate y notes reales
             val notesText = pet.notes ?: ""
@@ -150,7 +169,6 @@ fun PetFormScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Foto de perfil placeholder
             Box(
                 modifier = Modifier
                     .size(140.dp)
@@ -160,33 +178,56 @@ fun PetFormScreen(
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(20.dp)
                     )
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                    .clickable {
+                        // AL HACER CLICK: Abrimos la galería (Solo imágenes)
+                        photoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
+
+                if (selectedImageUri != null) {
+                    AsyncImage(
+                        model = selectedImageUri,
+                        contentDescription = "Foto seleccionada",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else if (!currentPhotoUrl.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = currentPhotoUrl,
+                        contentDescription = "Foto actual",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Añadir Foto",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(24.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Añadir Foto",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Añadir Foto",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Añadir Foto",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
 
@@ -326,13 +367,17 @@ fun PetFormScreen(
             // Botón Guardar
             Button(
                 onClick = {
+                    val photoFile = selectedImageUri?.let { uri ->
+                        FileUtils.getFileFromUri(context, uri)
+                    }
+
                     viewModel.savePet(
                         petId = petId,
                         name = name,
                         type = type,
-                        breed = null,
                         birthdate = birthdate.ifBlank { null },
                         notes = notes.ifBlank { null },
+                        photoFile = photoFile,
                         onSuccess = { navController.navigateUp() }
                     )
                 },

@@ -9,6 +9,7 @@ import com.mdavila_2001.gopuppy.data.repository.PetRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 data class PetFormState(
     val isLoading: Boolean = false,
@@ -46,9 +47,9 @@ class PetFormViewModel : ViewModel() {
         petId: Int?,
         name: String,
         type: String,
-        breed: String?,
         birthdate: String?,
         notes: String?,
+        photoFile: File?,
         onSuccess: () -> Unit
     ) {
         if (name.isBlank()) {
@@ -91,9 +92,19 @@ class PetFormViewModel : ViewModel() {
             }
 
             result.onSuccess { savedPet ->
+                if (photoFile != null) {
+                    Log.d("PetFormVM", "Subiendo foto para mascota ID: ${savedPet.id}")
+                    val uploadResult = repository.uploadPhoto(savedPet.id, photoFile)
+
+                    uploadResult.onSuccess {
+                        Log.d("PetFormVM", "Foto subida correctamente")
+                    }.onFailure { e ->
+                        Log.e("PetFormVM", "Error subiendo foto: ${e.message}")
+                    }
+                }
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    successMessage = if (petId != null) "Mascota actualizada" else "Mascota guardada",
+                    successMessage = if (petId != null) "Mascota actualizada" else "Mascota creada correctamente",
                     pet = savedPet
                 )
                 onSuccess()

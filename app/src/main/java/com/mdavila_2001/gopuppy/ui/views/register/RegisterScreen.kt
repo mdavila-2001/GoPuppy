@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mdavila_2001.gopuppy.R
@@ -47,7 +48,7 @@ import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 fun RegisterScreen(
     navController: NavController,
     isWalker: Boolean = false,
-    viewModel: RegisterViewModel = remember { RegisterViewModel() }
+    viewModel: RegisterViewModel = viewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }

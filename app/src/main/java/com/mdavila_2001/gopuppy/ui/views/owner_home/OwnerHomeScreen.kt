@@ -51,6 +51,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.components.global.cards.PetCard
+import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import kotlinx.coroutines.launch
@@ -67,6 +68,7 @@ fun OwnerHomeScreen(
     
     var showDeleteDialog by remember { mutableStateOf(false) }
     var petToDelete by remember { mutableStateOf<Pair<Int, String>?>(null) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Recargar mascotas cuando volvemos de otra pantalla
     LaunchedEffect(Unit) {
@@ -84,6 +86,9 @@ fun OwnerHomeScreen(
                         scope.launch {
                             drawerState.close()
                         }
+                    },
+                    onLogoutClick = {
+                        showLogoutDialog = true
                     }
                 )
             }
@@ -349,6 +354,28 @@ fun OwnerHomeScreen(
                     ) {
                         Text("Cancelar")
                     }
+                }
+            )
+        }
+
+        // Diálogo de confirmación de logout
+        if (showLogoutDialog) {
+            ConfirmDialog(
+                title = "Cerrar Sesión",
+                message = "¿Estás seguro de que deseas cerrar sesión?",
+                confirmText = "Cerrar Sesión",
+                cancelText = "Cancelar",
+                isDanger = true,
+                onConfirm = {
+                    showLogoutDialog = false
+                    viewModel.logout {
+                        navController.navigate("onboarding") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                },
+                onDismiss = {
+                    showLogoutDialog = false
                 }
             )
         }

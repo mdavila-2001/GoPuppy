@@ -96,4 +96,8 @@ interface GoPuppyApiService {
         @Path("id") id: Int,
         @Body review: ReviewDTO
     ): Response<Void>
+
+    @Multipart
+    @POST("owners/photo")
+    suspend fun uploadOwnerPhoto(@Part photo: MultipartBody.Part): Response<Void>
 }

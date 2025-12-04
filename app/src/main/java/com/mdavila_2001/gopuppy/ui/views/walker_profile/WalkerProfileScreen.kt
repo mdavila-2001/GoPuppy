@@ -59,6 +59,7 @@ import com.mdavila_2001.gopuppy.ui.components.global.AppBar
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.DangerButton
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.OutlinedButton
+import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import kotlinx.coroutines.launch
@@ -79,6 +80,7 @@ fun WalkerProfileScreen(
     var bio by remember { mutableStateOf("") }
     var pricePerHour by remember { mutableStateOf("") }
     var experience by remember { mutableStateOf("") }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Sincronizar con el estado del ViewModel
     LaunchedEffect(state.name, state.email, state.bio, state.pricePerHour, state.experience) {
@@ -112,6 +114,9 @@ fun WalkerProfileScreen(
                         scope.launch {
                             drawerState.close()
                         }
+                    },
+                    onLogoutClick = {
+                        showLogoutDialog = true
                     }
                 )
             }
@@ -398,15 +403,34 @@ fun WalkerProfileScreen(
                     DangerButton(
                         text = "Cerrar Sesión",
                         onClick = {
-                            // TODO: Implementar cierre de sesión
-                            navController.navigate("onboarding") {
-                                popUpTo(0) { inclusive = true }
-                            }
+                            showLogoutDialog = true
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Diálogo de confirmación de logout
+                if (showLogoutDialog) {
+                    ConfirmDialog(
+                        title = "Cerrar Sesión",
+                        message = "¿Estás seguro de que deseas cerrar sesión?",
+                        confirmText = "Cerrar Sesión",
+                        cancelText = "Cancelar",
+                        isDanger = true,
+                        onConfirm = {
+                            showLogoutDialog = false
+                            viewModel.logout {
+                                navController.navigate("onboarding") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        },
+                        onDismiss = {
+                            showLogoutDialog = false
+                        }
+                    )
                 }
             }
         }
