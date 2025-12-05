@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 class LocationService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationCallback: LocationCallback
+    private var locationCallback: LocationCallback? = null
 
     private val repository = WalkerRepository()
 
@@ -42,6 +42,16 @@ class LocationService : Service() {
 
     @SuppressLint("MissingPermission")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Primero iniciar el foreground service SIEMPRE
+        val notification = NotificationCompat.Builder(this, "walker_location_channel")
+            .setContentTitle("GoPuppy - Modo Paseador Activo")
+            .setContentText("Compartiendo tu ubicación cada 5 min...")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
+        startForeground(1, notification)
+
+        // Luego verificar permisos
         val hasFine = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -51,28 +61,14 @@ class LocationService : Service() {
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        val hasForegroundServiceLocation = if (Build.VERSION.SDK_INT >= 31) {
-            ContextCompat.checkSelfPermission(this, "android.permission.FOREGROUND_SERVICE_LOCATION") == PackageManager.PERMISSION_GRANTED
-        } else {
-            true
-        }
-
-        if ((!hasFine && !hasCoarse) || !hasForegroundServiceLocation) {
+        if (!hasFine && !hasCoarse) {
             Log.e(
                 "LocationService",
-                "Permisos de ubicación o FOREGROUND_SERVICE_LOCATION faltantes. No se puede iniciar el foreground service con tipo location. hasFine=$hasFine hasCoarse=$hasCoarse hasFgsLoc=$hasForegroundServiceLocation"
+                "Permisos de ubicación faltantes. hasFine=$hasFine hasCoarse=$hasCoarse"
             )
             stopSelf()
             return START_NOT_STICKY
         }
-
-        val notification = NotificationCompat.Builder(this, "walker_location_channel")
-            .setContentTitle("GoPuppy - Modo Paseador Activo")
-            .setContentText("Compartiendo tu ubicación cada 5 min...")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Asegúrate de tener un ícono válido
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
-        startForeground(1, notification)
 
         startLocationUpdates()
 
@@ -107,7 +103,7 @@ class LocationService : Service() {
         try {
             fusedLocationClient.requestLocationUpdates(
                 locationRequest,
-                locationCallback,
+                locationCallback!!,
                 Looper.getMainLooper()
             )
         } catch (e: SecurityException) {
@@ -117,7 +113,9 @@ class LocationService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        locationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
+        }
         serviceScope.cancel()
     }
 

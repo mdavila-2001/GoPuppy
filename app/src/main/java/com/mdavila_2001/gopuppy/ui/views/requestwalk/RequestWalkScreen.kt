@@ -1,24 +1,44 @@
 package com.mdavila_2001.gopuppy.ui.views.requestwalk
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,14 +68,21 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
+import com.mdavila_2001.gopuppy.data.remote.models.address.Address
+import com.mdavila_2001.gopuppy.data.remote.models.pet.Pet
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
+import com.mdavila_2001.gopuppy.ui.components.global.cards.WalkerCard
+import com.mdavila_2001.gopuppy.ui.components.global.inputs.Input
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
+import java.util.Calendar
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RequestWalkScreen(
-    navController: NavController,
+    onNavigateBack: () -> Unit,
+    onNavigateToAddPet: () -> Unit,
     viewModel: RequestWalkViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -95,7 +122,7 @@ fun RequestWalkScreen(
         state.successMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             viewModel.clearMessages()
-            navController.navigateUp() // Volver al Home
+            onNavigateBack() // Volver al Home
         }
     }
 
@@ -105,7 +132,7 @@ fun RequestWalkScreen(
                 TopAppBar(
                     title = { Text("Solicitar Paseo", fontWeight = FontWeight.Bold) },
                     navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
+                        IconButton(onClick = { onNavigateBack() }) {
                             Icon(Icons.Default.ArrowBack, "Volver")
                         }
                     },
@@ -152,18 +179,18 @@ fun RequestWalkScreen(
                                 state.selectedAddress!!.longitude.toDoubleOrNull() ?: 0.0
                             )
                             Marker(
-                                state = rememberMarkerState(position = myPos),
+                                state = rememberUpdatedMarkerState(position = myPos),
                                 title = "Punto de Encuentro",
                                 icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                             )
                         }
 
                         state.nearbyWalkers.forEach { walker ->
-                            val wLat = walker.current_latitude?.toDoubleOrNull()
-                            val wLng = walker.current_latitude?.toDoubleOrNull()
+                            val wLat = walker.latitude
+                            val wLng = walker.longitude
                             if (wLat != null && wLng != null) {
                                 Marker(
-                                    state = rememberMarkerState(position = LatLng(wLat, wLng)),
+                                    state = rememberUpdatedMarkerState(position = LatLng(wLat, wLng)),
                                     title = walker.name,
                                     icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE),
                                     onClick = {
@@ -215,7 +242,7 @@ fun RequestWalkScreen(
                         )
                     }
 
-                    Divider()
+                    HorizontalDivider()
 
                     // SECCIÓN MASCOTA
                     Text("¿A quién paseamos?", fontWeight = FontWeight.Bold)
@@ -248,7 +275,7 @@ fun RequestWalkScreen(
                                     showDatePicker(context) { y, m, d ->
                                         dateText = "$d/${m+1}/$y"
                                         // Guardamos parcial YYYY-MM-DD
-                                        scheduledAt = String.format("%04d-%02d-%02d", y, m + 1, d) + " " + (if(timeText.isEmpty()) "00:00" else timeText)
+                                        scheduledAt = String.format(Locale.getDefault(), "%04d-%02d-%02d", y, m + 1, d) + " " + (if(timeText.isEmpty()) "00:00" else timeText)
                                     }
                                 }) {
                                     Icon(Icons.Default.CalendarToday, null)
@@ -265,7 +292,7 @@ fun RequestWalkScreen(
                             trailingIcon = {
                                 IconButton(onClick = {
                                     showTimePicker(context) { h, min ->
-                                        timeText = String.format("%02d:%02d", h, min)
+                                        timeText = String.format(Locale.getDefault(), "%02d:%02d", h, min)
                                         // Completamos YYYY-MM-DD HH:mm
                                         val datePart = if(scheduledAt.contains(" ")) scheduledAt.split(" ")[0] else scheduledAt
                                         scheduledAt = "$datePart $timeText"
@@ -278,14 +305,14 @@ fun RequestWalkScreen(
                     }
 
                     // DURACIÓN Y NOTAS
-                    CamiDogInput(
+                    Input(
                         text = duration,
                         onValueChange = { duration = it },
                         label = "Duración (minutos)",
                         keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                     )
 
-                    CamiDogInput(
+                    Input(
                         text = notes,
                         onValueChange = { notes = it },
                         label = "Notas para el paseador",
@@ -359,7 +386,7 @@ fun PetSelectionCard(pet: Pet, isSelected: Boolean, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
         ),
-        border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)
+        border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else BorderStroke(1.dp, Color.LightGray)
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(8.dp),
