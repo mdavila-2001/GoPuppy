@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
+import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.components.global.AppBar
+import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import kotlinx.coroutines.launch
@@ -41,6 +43,7 @@ fun WalkHistoryScreen(
     val state by viewModel.state.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     GoPuppyTheme(role = "owner") {
         ModalNavigationDrawer(
@@ -52,6 +55,9 @@ fun WalkHistoryScreen(
                     userName = state.userName,
                     onCloseDrawer = {
                         scope.launch { drawerState.close() }
+                    },
+                    onLogoutClick = {
+                        showLogoutDialog = true
                     }
                 )
             }
@@ -168,11 +174,27 @@ fun WalkHistoryScreen(
                 }
             }
         }
+
+        if (showLogoutDialog) {
+            ConfirmDialog(
+                title = "Cerrar Sesión",
+                message = "¿Estás seguro que deseas cerrar sesión?",
+                onConfirm = {
+                    viewModel.logout {
+                        navController.navigate(NavRoutes.Onboarding.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                    showLogoutDialog = false
+                },
+                onDismiss = { showLogoutDialog = false }
+            )
+        }
     }
 }
 
 @Composable
-fun SearchBar(
+private fun SearchBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit
 ) {

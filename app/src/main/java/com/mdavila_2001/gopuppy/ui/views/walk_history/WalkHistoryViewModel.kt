@@ -100,6 +100,13 @@ class WalkHistoryViewModel(application: Application) : AndroidViewModel(applicat
     fun clearError() {
         _state.value = _state.value.copy(errorMessage = null)
     }
+
+    fun logout(onLogoutComplete: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.logout()
+            onLogoutComplete()
+        }
+    }
 }
 
 class WalkHistoryViewModelFactory(

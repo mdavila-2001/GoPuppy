@@ -36,8 +36,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import com.mdavila_2001.gopuppy.ui.NavRoutes
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.mdavila_2001.gopuppy.ui.components.address.AddressItemCard
 import com.mdavila_2001.gopuppy.ui.components.address.EmptyAddressState
+import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import com.mdavila_2001.gopuppy.ui.viewmodels.AddressListViewModel
@@ -51,6 +55,7 @@ fun AddressListScreen(
     val state by viewModel.uiState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.collect { entry ->
@@ -69,7 +74,10 @@ fun AddressListScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = false,
-                    onCloseDrawer = { scope.launch { drawerState.close() } }
+                    onCloseDrawer = { scope.launch { drawerState.close() } },
+                    onLogoutClick = {
+                        showLogoutDialog = true
+                    }
                 )
             }
         ) {
@@ -123,6 +131,22 @@ fun AddressListScreen(
                     }
                 }
             }
+        }
+
+        if (showLogoutDialog) {
+            ConfirmDialog(
+                title = "Cerrar Sesión",
+                message = "¿Estás seguro que deseas cerrar sesión?",
+                onConfirm = {
+                    viewModel.logout {
+                        navController.navigate(NavRoutes.Onboarding.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                    showLogoutDialog = false
+                },
+                onDismiss = { showLogoutDialog = false }
+            )
         }
     }
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
+import com.mdavila_2001.gopuppy.data.repository.AuthRepository
 import com.mdavila_2001.gopuppy.data.repository.WalkRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,7 @@ data class WalkDetailUiState(
 
 class WalkDetailViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = WalkRepository()
+    private val authRepository = AuthRepository(application.applicationContext)
     private val _uiState = MutableStateFlow(WalkDetailUiState())
     val uiState: StateFlow<WalkDetailUiState> = _uiState.asStateFlow()
 
@@ -103,5 +105,12 @@ class WalkDetailViewModel(application: Application) : AndroidViewModel(applicati
 
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
+    }
+
+    fun logout(onLogoutComplete: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.logout()
+            onLogoutComplete()
+        }
     }
 }

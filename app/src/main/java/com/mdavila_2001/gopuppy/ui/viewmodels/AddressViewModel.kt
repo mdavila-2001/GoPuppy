@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.remote.models.address.Address
 import com.mdavila_2001.gopuppy.data.repository.AddressRepository
+import com.mdavila_2001.gopuppy.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,7 @@ data class AddressListUiState(
 
 class AddressListViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = AddressRepository()
+    private val authRepository = AuthRepository(application.applicationContext)
 
     private val _uiState = MutableStateFlow(AddressListUiState())
     val uiState: StateFlow<AddressListUiState> = _uiState.asStateFlow()
@@ -57,6 +59,13 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
                 .onFailure {
                     _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = "No se pudo eliminar")
                 }
+        }
+    }
+
+    fun logout(onLogoutComplete: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.logout()
+            onLogoutComplete()
         }
     }
 }

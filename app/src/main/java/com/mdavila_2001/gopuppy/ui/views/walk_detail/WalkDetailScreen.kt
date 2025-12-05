@@ -40,7 +40,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,8 +67,10 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import com.mdavila_2001.gopuppy.ui.FileUtils
+import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.components.global.AppBar
 import com.mdavila_2001.gopuppy.ui.components.global.StatusChip
+import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.DangerButton
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.OutlinedButton
@@ -90,6 +95,7 @@ fun WalkDetailScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -134,6 +140,9 @@ fun WalkDetailScreen(
                         scope.launch {
                             drawerState.close()
                         }
+                    },
+                    onLogoutClick = {
+                        showLogoutDialog = true
                     }
                 )
             }
@@ -260,6 +269,22 @@ fun WalkDetailScreen(
                     }
                 }
             }
+        }
+
+        if (showLogoutDialog) {
+            ConfirmDialog(
+                title = "Cerrar Sesión",
+                message = "¿Estás seguro que deseas cerrar sesión?",
+                onConfirm = {
+                    viewModel.logout {
+                        navController.navigate(NavRoutes.Onboarding.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                    showLogoutDialog = false
+                },
+                onDismiss = { showLogoutDialog = false }
+            )
         }
     }
 }
