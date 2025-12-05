@@ -54,7 +54,7 @@ object RetrofitInstance {
         authToken?.let { token ->
             requestBuilder.addHeader("Authorization", "Bearer $token")
         }
-
+        requestBuilder.addHeader("Accept", "application/json")
         chain.proceed(requestBuilder.build())
     }
 

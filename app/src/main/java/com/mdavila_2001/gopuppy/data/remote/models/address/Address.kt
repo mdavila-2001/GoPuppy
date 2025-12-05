@@ -9,8 +9,8 @@ data class Address (
     val label: String,
     @SerializedName("address")
     val address: String,
-    @SerializedName("lat")
-    val lat: String,
-    @SerializedName("lng")
-    val lng: String
+    @SerializedName("latitude")
+    val latitude: String,
+    @SerializedName("longitude")
+    val longitude: String
 )
