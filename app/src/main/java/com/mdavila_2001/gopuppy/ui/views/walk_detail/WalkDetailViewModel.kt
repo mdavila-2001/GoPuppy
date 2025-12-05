@@ -1,5 +1,7 @@
 package com.mdavila_2001.gopuppy.ui.views.walk_detail
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
@@ -8,59 +10,98 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
-data class WalkDetailState(
-    val walk: Walk? = null,
-    val photos: List<String> = emptyList(),
+data class WalkDetailUiState(
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val walk: Walk? = null,
+    val errorMessage: String? = null,
+    val successMessage: String? = null
 )
 
-class WalkDetailViewModel : ViewModel() {
-    private val walkRepository = WalkRepository()
+class WalkDetailViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = WalkRepository()
+    private val _uiState = MutableStateFlow(WalkDetailUiState())
+    val uiState: StateFlow<WalkDetailUiState> = _uiState.asStateFlow()
 
-    private val _state = MutableStateFlow(WalkDetailState())
-    val state: StateFlow<WalkDetailState> = _state.asStateFlow()
-
-    fun loadWalkDetail(walkId: Int) {
+    fun loadWalkDetails(walkId: Int) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
-            
-            walkRepository.getDetail(walkId).fold(
-                onSuccess = { walk ->
-                    _state.value = _state.value.copy(
-                        walk = walk,
-                        isLoading = false
-                    )
-                    // Cargar fotos si el paseo está finalizado
-                    if (walk.status == "completed") {
-                        loadWalkPhotos(walkId)
-                    }
-                },
-                onFailure = { error ->
-                    _state.value = _state.value.copy(
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            repository.getDetail(walkId)
+                .onSuccess { walk ->
+                    _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Error al cargar detalles del paseo"
+                        walk = walk,
+                        errorMessage = null
                     )
                 }
-            )
-        }
-    }
-
-    private fun loadWalkPhotos(walkId: Int) {
-        viewModelScope.launch {
-            walkRepository.getWalkPhotos(walkId).fold(
-                onSuccess = { photos ->
-                    _state.value = _state.value.copy(photos = photos)
-                },
-                onFailure = { error ->
-                    // No es crítico si falla la carga de fotos
+                .onFailure { e ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = e.message ?: "Error cargando paseo"
+                    )
                 }
-            )
         }
     }
 
-    fun clearError() {
-        _state.value = _state.value.copy(errorMessage = null)
+    fun startWalk() {
+        val currentWalk = uiState.value.walk ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            repository.startWalk(currentWalk.id)
+                .onSuccess {
+                    // Recargamos el detalle para ver el nuevo estado
+                    loadWalkDetails(currentWalk.id)
+                    _uiState.value = _uiState.value.copy(successMessage = "¡Paseo iniciado!")
+                }
+                .onFailure { e ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "No se pudo iniciar: ${e.message}"
+                    )
+                }
+        }
+    }
+
+    fun endWalk() {
+        val currentWalk = uiState.value.walk ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            repository.endWalk(currentWalk.id)
+                .onSuccess {
+                    loadWalkDetails(currentWalk.id)
+                    _uiState.value = _uiState.value.copy(successMessage = "¡Paseo finalizado correctamente!")
+                }
+                .onFailure { e ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Error al finalizar: ${e.message}"
+                    )
+                }
+        }
+    }
+
+    fun uploadPhoto(file: File) {
+        val currentWalk = uiState.value.walk ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            repository.uploadWalkPhoto(currentWalk.id, file)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        successMessage = "Foto subida correctamente"
+                    )
+                }
+                .onFailure { e ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Error subiendo foto: ${e.message}"
+                    )
+                }
+        }
+    }
+
+    fun clearMessages() {
+        _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
     }
 }

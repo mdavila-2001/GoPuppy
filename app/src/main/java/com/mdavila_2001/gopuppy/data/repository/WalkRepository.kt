@@ -14,6 +14,7 @@ class WalkRepository {
     private val api = RetrofitInstance.apiService
 
     suspend fun getHistory(): Result<List<Walk>> = safeApiCall { api.getWalksHistory() }
+    suspend fun getPending(): Result<List<Walk>> = safeApiCall { api.getPendingWalks() }
     suspend fun getAccepted(): Result<List<Walk>> = safeApiCall { api.getAcceptedWalks() }
 
     suspend fun getDetail(id: Int): Result<Walk> {

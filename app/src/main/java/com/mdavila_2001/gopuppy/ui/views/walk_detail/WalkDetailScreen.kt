@@ -1,5 +1,10 @@
 package com.mdavila_2001.gopuppy.ui.views.walk_detail
 
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,10 +63,16 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import com.mdavila_2001.gopuppy.ui.FileUtils
 import com.mdavila_2001.gopuppy.ui.components.global.AppBar
 import com.mdavila_2001.gopuppy.ui.components.global.StatusChip
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
+import com.mdavila_2001.gopuppy.ui.components.global.buttons.DangerButton
+import com.mdavila_2001.gopuppy.ui.components.global.buttons.OutlinedButton
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
+import com.mdavila_2001.gopuppy.ui.components.walk.PetInfoSection
+import com.mdavila_2001.gopuppy.ui.components.walk.WalkDetailsSection
+import com.mdavila_2001.gopuppy.ui.components.walk.WalkMapSection
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -74,13 +86,38 @@ fun WalkDetailScreen(
     isWalker: Boolean = false,
     viewModel: WalkDetailViewModel = viewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.uiState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            val file = FileUtils.getFileFromUri(context, uri)
+            if (file != null) {
+                viewModel.uploadPhoto(file)
+            } else {
+                Toast.makeText(context, "Error al procesar imagen", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     // Cargar detalles del paseo
     LaunchedEffect(walkId) {
-        viewModel.loadWalkDetail(walkId)
+        viewModel.loadWalkDetails(walkId)
+    }
+
+    LaunchedEffect(state.errorMessage, state.successMessage) {
+        state.errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.clearMessages()
+        }
+        state.successMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearMessages()
+        }
     }
 
     GoPuppyTheme(role = if (isWalker) "walker" else "owner") {
@@ -113,404 +150,117 @@ fun WalkDetailScreen(
                     )
                 }
             ) { paddingValues ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    // Mapa interactivo (siempre visible)
-                    WalkMapSection(
-                        latitude = -17.7833, // TODO: Obtener de la API
-                        longitude = -63.1821
-                    )
+                if (state.isLoading && state.walk == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else if (state.walk == null && state.errorMessage != null) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Error al cargar el paseo", color = MaterialTheme.colorScheme.error)
+                    }
+                } else if (state.walk != null) {
+                    val walk = state.walk!!
 
-                    if (state.isLoading) {
+                    val lat = walk.address.lat.toDoubleOrNull() ?: -17.7833
+                    val lng = walk.address.lng.toDoubleOrNull() ?: -63.1821
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        WalkMapSection(latitude = lat, longitude = lng)
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(200.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    } else if (state.walk != null) {
-                        // Estado del paseo
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
+                                .padding(horizontal = 16.dp)
                         ) {
                             StatusChip(
-                                status = state.walk!!.status,
-                                modifier = Modifier.align(Alignment.Center)
+                                status = walk.status,
+                                modifier = Modifier.align(Alignment.CenterEnd)
                             )
                         }
 
-                        // Información del perro
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         PetInfoSection(
-                            petName = state.walk!!.pet.name,
-                            petPhoto = state.walk!!.pet.photoUrl,
-                            ownerName = state.walk!!.owner.name,
-                            notes = state.walk!!.notes
+                            petName = walk.pet.name,
+                            petPhoto = walk.pet.photoUrl,
+                            ownerName = walk.owner.name,
+                            notes = walk.notes
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Detalles del paseo
                         WalkDetailsSection(
-                            date = state.walk!!.scheduledAt,
-                            duration = state.walk!!.durationMinutes
+                            date = walk.scheduledAt,
+                            duration = walk.durationMinutes
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                        // Botón de acción según el estado
-                        if (state.walk!!.status == "scheduled" || state.walk!!.status == "pending") {
-                            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                Button(
-                                    text = "Iniciar Paseo",
-                                    onClick = { /* TODO: Implementar inicio de paseo */ },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                        if (isWalker) {
+                            val status = walk.status.lowercase()
+
+                            Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
+                                when (status) {
+                                    "accepted", "pending", "scheduled" -> {
+                                        Button(
+                                            text = "Iniciar Paseo",
+                                            onClick = { viewModel.startWalk() },
+                                            isLoading = state.isLoading
+                                        )
+                                    }
+                                    "in_progress", "started", "en curso" -> {
+                                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            Text(
+                                                "Paseo en curso",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                            )
+
+                                            OutlinedButton(
+                                                text = "Subir Evidencia",
+                                                onClick = {
+                                                    photoPickerLauncher.launch(
+                                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                                    )
+                                                }
+                                            )
+
+                                            DangerButton(
+                                                text = "Finalizar Paseo",
+                                                onClick = {
+                                                    viewModel.endWalk()
+                                                },
+                                                isLoading = state.isLoading
+                                            )
+                                        }
+                                    }
+                                    "finished" -> {
+                                        Text(
+                                            text = "✅ Este paseo ha finalizado",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = Color.Gray,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
                             }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
-                    } else if (state.errorMessage != null) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = "No se pudieron cargar los detalles",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.error,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = state.errorMessage ?: "Error desconocido",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "ID del paseo: $walkId\n(Este paseo aún no existe en el servidor)",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun WalkMapSection(
-    latitude: Double,
-    longitude: Double
-) {
-    val walkLocation = LatLng(latitude, longitude)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(walkLocation, 15f)
-    }
-
-    // Configuración del mapa con interactividad completa
-    val mapProperties = MapProperties(
-        mapType = MapType.NORMAL,
-        isMyLocationEnabled = false
-    )
-
-    val uiSettings = MapUiSettings(
-        zoomControlsEnabled = true,
-        zoomGesturesEnabled = true,
-        scrollGesturesEnabled = true,
-        tiltGesturesEnabled = true,
-        rotationGesturesEnabled = true,
-        scrollGesturesEnabledDuringRotateOrZoom = true,
-        compassEnabled = true,
-        mapToolbarEnabled = true
-    )
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = mapProperties,
-            uiSettings = uiSettings
-        ) {
-            Marker(
-                state = rememberMarkerState(position = walkLocation),
-                title = "Ubicación del paseo",
-                snippet = "Barranquilla"
-            )
-        }
-    }
-}
-
-@Composable
-fun PetInfoSection(
-    petName: String,
-    petPhoto: String?,
-    ownerName: String,
-    notes: String?
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Información del Perro",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Foto del perro
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (petPhoto != null) {
-                        AsyncImage(
-                            model = petPhoto,
-                            contentDescription = "Foto de $petName",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Pets,
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = petName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "Golden Retriever",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Pets,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = ownerName,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Dueña",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-            }
-
-            if (!notes.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Notas importantes:",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = notes,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun WalkDetailsSection(
-    date: String,
-    duration: Int
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Fecha
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CalendarToday,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = "Fecha",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = formatDate(date),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            // Hora
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccessTime,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = "Hora de inicio",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = formatTime(date),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            // Duración
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccessTime,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = "Duración",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "$duration minutos",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
-    }
-}
-
-// Funciones auxiliares para formateo de fechas
-private fun formatDate(dateString: String): String {
-    return try {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("dd 'de' MMMM, yyyy", Locale("es", "ES"))
-        val date = inputFormat.parse(dateString)
-        date?.let { outputFormat.format(it) } ?: dateString
-    } catch (e: Exception) {
-        dateString
-    }
-}
-
-private fun formatTime(dateString: String): String {
-    return try {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        val date = inputFormat.parse(dateString)
-        date?.let { outputFormat.format(it) } ?: dateString
-    } catch (e: Exception) {
-        dateString
     }
 }
 

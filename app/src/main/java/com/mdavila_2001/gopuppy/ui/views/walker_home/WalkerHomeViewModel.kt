@@ -1,65 +1,141 @@
 package com.mdavila_2001.gopuppy.ui.views.walker_home
 
 import android.app.Application
+import android.content.Intent
+import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository
+import com.mdavila_2001.gopuppy.data.repository.WalkRepository
+import com.mdavila_2001.gopuppy.data.repository.WalkerRepository
+import com.mdavila_2001.gopuppy.services.LocationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+data class WalkerHomeUiState(
+    val isAvailable: Boolean = false,
+    val isLoading: Boolean = false,
+    val newRequests: List<Walk> = emptyList(),
+    val upcomingWalks: List<Walk> = emptyList(),
+    val errorMessage: String? = null,
+    val currentWalkerId: Int? = null
+)
 class WalkerHomeViewModel(application: Application) : AndroidViewModel(application) {
+    private val walkerRepository = WalkerRepository()
+    private val walkRepository = WalkRepository()
     private val authRepository = AuthRepository(application.applicationContext)
-    private val _state = MutableStateFlow(WalkerHomeState())
-    val state: StateFlow<WalkerHomeState> = _state.asStateFlow()
+    private val context = application.applicationContext
 
-    // Simulación de datos
+    private val _uiState = MutableStateFlow(WalkerHomeUiState())
+    val uiState: StateFlow<WalkerHomeUiState> = _uiState.asStateFlow()
+
     init {
-        loadUserName()
-        _state.value = WalkerHomeState(
-            upcomingWalks = listOf(
-                WalkerWalkUiModel(1, "HOY", "10:00 AM", 60, "Parque Hundido, CDMX", "Fido", "Golden Retriever"),
-                WalkerWalkUiModel(2, "MAÑANA", "5:00 PM", 30, "Colonia Roma, CDMX", "Chato", "Pug")
-            ),
-            newRequests = listOf(
-                WalkerRequestUiModel(3, "Mañana", "4:00 PM", 30, "Max", "Bulldog Francés"),
-                WalkerRequestUiModel(4, "Viernes", "9:00 AM", 60, "Luna", "Border Collie")
-            )
-        )
+        loadData()
     }
-    
-    private fun loadUserName() {
+
+    fun loadData() {
         viewModelScope.launch {
-            authRepository.getProfile().onSuccess { userInfo ->
-                _state.value = _state.value.copy(userName = userInfo.name)
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            val profileResult = authRepository.getProfile()
+            val myId = profileResult.getOrNull()?.id
+
+            if (myId == null) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "No se pudo identificar al paseador."
+                )
+                return@launch
+            }
+
+            _uiState.value = _uiState.value.copy(currentWalkerId = myId)
+
+            val pendingResult = walkRepository.getPending()
+            val acceptedResult = walkRepository.getAccepted()
+
+            val allPending = pendingResult.getOrDefault(emptyList())
+            val allAccepted = acceptedResult.getOrDefault(emptyList())
+
+            val myPending = allPending.filter { it.walkerId == myId }
+            val myAccepted = allAccepted.filter { it.walkerId == myId }
+
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                newRequests = myPending,
+                upcomingWalks = myAccepted
+            )
+        }
+    }
+
+    fun toggleAvailability(isChecked: Boolean) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            val result = walkerRepository.setAvailability(isChecked)
+
+            result.onSuccess {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    isAvailable = isChecked
+                )
+
+                val serviceIntent = Intent(context, LocationService::class.java)
+
+                if (isChecked) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        context.startService(serviceIntent)
+                    }
+                } else {
+                    context.stopService(serviceIntent)
+                }
+
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = e.message ?: "Error al cambiar disponibilidad"
+                )
             }
         }
     }
 
-    fun acceptRequest(requestId: Int) {
-        // TODO: Implementar lógica de aceptar solicitud
-    }
-
-    fun rejectRequest(requestId: Int) {
-        // TODO: Implementar lógica de rechazar solicitud
-    }
-}
-
-data class WalkerHomeState(
-    val upcomingWalks: List<WalkerWalkUiModel> = emptyList(),
-    val newRequests: List<WalkerRequestUiModel> = emptyList(),
-    val userName: String = "Paseador"
-)
-
-class WalkerHomeViewModelFactory(
-    private val application: Application
-) : androidx.lifecycle.ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(WalkerHomeViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return WalkerHomeViewModel(application) as T
+    fun acceptRequest(walkId: Int) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            walkRepository.acceptWalk(walkId)
+                .onSuccess {
+                    loadData()
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Error al aceptar la solicitud"
+                    )
+                }
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+
+    fun rejectRequest(walkId: Int) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            walkRepository.rejectWalk(walkId)
+                .onSuccess {
+                    loadData()
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Error al rechazar la solicitud"
+                    )
+                }
+        }
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 }

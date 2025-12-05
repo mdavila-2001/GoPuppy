@@ -149,9 +149,16 @@ class AuthRepository(context: Context) {
             val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
 
             val response = api.uploadOwnerPhoto(body)
-            if (response.isSuccessful) Result.success(true)
-            else Result.failure(Exception("Error subiendo foto de perfil"))
+            if (response.isSuccessful) {
+                Log.d("AuthRepo", "uploadOwnerPhoto éxito: ${response.code()}")
+                Result.success(true)
+            } else {
+                val err = response.errorBody()?.string()
+                Log.e("AuthRepo", "uploadOwnerPhoto fallo: code=${response.code()} body=$err")
+                Result.failure(Exception("Error subiendo foto de perfil: ${response.code()} - ${err ?: "no body"}"))
+            }
         } catch (e: Exception) {
+            Log.e("AuthRepo", "Excepción uploadOwnerPhoto: ${e.message}")
             Result.failure(e)
         }
     }
@@ -162,9 +169,16 @@ class AuthRepository(context: Context) {
             val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
 
             val response = api.uploadWalkerPhoto(body)
-            if (response.isSuccessful) Result.success(true)
-            else Result.failure(Exception("Error subiendo foto de perfil"))
+            if (response.isSuccessful) {
+                Log.d("AuthRepo", "uploadWalkerPhoto éxito: ${response.code()}")
+                Result.success(true)
+            } else {
+                val err = response.errorBody()?.string()
+                Log.e("AuthRepo", "uploadWalkerPhoto fallo: code=${response.code()} body=$err")
+                Result.failure(Exception("Error subiendo foto de perfil: ${response.code()} - ${err ?: "no body"}"))
+            }
         } catch (e: Exception) {
+            Log.e("AuthRepo", "Excepción uploadWalkerPhoto: ${e.message}")
             Result.failure(e)
         }
     }
