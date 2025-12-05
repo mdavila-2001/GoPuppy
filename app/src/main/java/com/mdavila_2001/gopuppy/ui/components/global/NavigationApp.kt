@@ -83,7 +83,7 @@ fun NavigationApp(modifier: Modifier) {
             PlaceholderScreen("BookWalk")
         }
         composable(NavRoutes.WalkerHome.route) {
-            WalkerHomeScreen(viewModel = WalkerHomeViewModel(), navController = navController)
+            WalkerHomeScreen(navController = navController)
         }
         composable(NavRoutes.Requests.route) {
             PlaceholderScreen("Requests")

@@ -37,7 +37,7 @@ fun RequestWalkScreen(
     onNavigateToAddPet: () -> Unit,
     viewModel: RequestWalkViewModel = viewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    /*val state by viewModel.state.collectAsState()
     val pets by viewModel.pets.collectAsState()
     val scrollState = rememberScrollState()
 
@@ -322,5 +322,5 @@ fun RequestWalkScreen(
                 }
             )
         }
-    }
+    }*/
 }

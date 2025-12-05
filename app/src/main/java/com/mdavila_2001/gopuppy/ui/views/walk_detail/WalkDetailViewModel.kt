@@ -63,6 +63,24 @@ class WalkDetailViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun endWalk() {
+        val currentWalk = uiState.value.walk ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            repository.endWalk(currentWalk.id)
+                .onSuccess {
+                    loadWalkDetails(currentWalk.id)
+                    _uiState.value = _uiState.value.copy(successMessage = "¡Paseo finalizado correctamente!")
+                }
+                .onFailure { e ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Error al finalizar: ${e.message}"
+                    )
+                }
+        }
+    }
+
     fun uploadPhoto(file: File) {
         val currentWalk = uiState.value.walk ?: return
         viewModelScope.launch {

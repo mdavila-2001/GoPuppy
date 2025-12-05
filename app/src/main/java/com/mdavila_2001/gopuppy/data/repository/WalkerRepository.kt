@@ -73,17 +73,4 @@ class WalkerRepository {
             Result.failure(e)
         }
     }
-
-    suspend fun uploadProfilePhoto(file: File): Result<Boolean> {
-        return try {
-            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-            val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
-
-            val response = api.uploadWalkerPhoto(body)
-            if (response.isSuccessful) Result.success(true)
-            else Result.failure(Exception("Error subiendo foto de perfil"))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
 }

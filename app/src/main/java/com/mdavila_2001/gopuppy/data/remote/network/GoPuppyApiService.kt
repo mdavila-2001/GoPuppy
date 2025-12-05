@@ -1,5 +1,7 @@
 package com.mdavila_2001.gopuppy.data.remote.network
 
+import com.mdavila_2001.gopuppy.data.remote.models.address.Address
+import com.mdavila_2001.gopuppy.data.remote.models.address.AddressDTO
 import com.mdavila_2001.gopuppy.data.remote.models.auth.LoginRequest
 import com.mdavila_2001.gopuppy.data.remote.models.auth.UserInfo
 import com.mdavila_2001.gopuppy.data.remote.models.auth.signup.AuthResponse
@@ -100,4 +102,15 @@ interface GoPuppyApiService {
     @Multipart
     @POST("owners/photo")
     suspend fun uploadOwnerPhoto(@Part photo: MultipartBody.Part): Response<Void>
+
+    @GET("addresses")
+    suspend fun getAddresses(): Response<List<Address>>
+
+    @POST("addresses")
+    suspend fun addAddress(
+        @Body address: AddressDTO
+    ): Response<Address>
+
+    @DELETE("addresses/{id}")
+    suspend fun deleteAddress(@Path("id") id: Int): Response<Void>
 }
