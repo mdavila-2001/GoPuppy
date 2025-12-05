@@ -6,7 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +20,7 @@ import com.mdavila_2001.gopuppy.ui.views.owner_home.OwnerHomeScreen
 import com.mdavila_2001.gopuppy.ui.views.pet_form.PetFormScreen
 import com.mdavila_2001.gopuppy.ui.views.requestwalk.RequestWalkScreen
 import com.mdavila_2001.gopuppy.ui.views.walker_home.WalkerHomeScreen
+import com.mdavila_2001.gopuppy.ui.views.walker_home.WalkerHomeViewModel
 import com.mdavila_2001.gopuppy.ui.views.walker_search.WalkerSearchScreen
 import com.mdavila_2001.gopuppy.ui.views.walker_search.WalkerSearchViewModel
 
@@ -52,7 +52,6 @@ fun NavigationApp(modifier: Modifier) {
             val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
             RegisterScreen(navController, isWalker)
         }
-        // WelcomeTransition removido - navegación directa al Home
         composable(NavRoutes.OwnerHome.route) {
             OwnerHomeScreen(navController)
         }
@@ -69,16 +68,11 @@ fun NavigationApp(modifier: Modifier) {
         }
         composable(NavRoutes.RequestWalk.route) {
             RequestWalkScreen(
-                onNavigateBack = { navController.navigateUp() },
+                onNavigateBack = { navController.popBackStack() },
                 onNavigateToAddPet = { navController.navigate(NavRoutes.PetForm.route) }
             )
         }
-        composable(NavRoutes.WalkerSearch.route) {
-            WalkerSearchScreen(
-                viewModel = viewModel(),
-                navController = navController
-            )
-        }
+
         composable(NavRoutes.WalkerDetail.route) {
             PlaceholderScreen("WalkerDetail")
         }
