@@ -1,6 +1,8 @@
 package com.mdavila_2001.gopuppy.data.remote.models.walker
 
 import com.google.gson.annotations.SerializedName
+import com.mdavila_2001.gopuppy.data.remote.models.walker.extras.WalkerExtras
+import com.mdavila_2001.gopuppy.data.remote.models.walker.status.WalkerStatus
 
 data class Walker (
     @SerializedName("id")
@@ -9,10 +11,25 @@ data class Walker (
     val name: String,
     @SerializedName("email")
     val email: String,
-    @SerializedName("price_hour")
-    val priceHour: String,
-    @SerializedName("rating")
-    val rating: Double,
+    @SerializedName("role")
+    val role: String? = null,
     @SerializedName("photoUrl")
-    val photoUrl: String
-)
+    val photoUrl: String?,
+
+    @SerializedName("extras")
+    val extras: WalkerExtras? = null,
+    @SerializedName("walker_status")
+    val status: WalkerStatus? = null
+) {
+    val priceHour: String
+        get() = extras?.priceHour ?: "A convenir"
+
+    val rating: Double
+        get() = extras?.ratingSummary ?: 5.0
+
+    val latitude: Double?
+        get() = status?.currentLatitude?.toDoubleOrNull()
+
+    val longitude: Double?
+        get() = status?.currentLongitude?.toDoubleOrNull()
+}
