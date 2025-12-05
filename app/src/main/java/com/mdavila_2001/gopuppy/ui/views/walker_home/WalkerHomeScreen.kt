@@ -58,6 +58,8 @@ fun WalkerHomeScreen(
         }
     }
 
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     GoPuppyTheme(role = "walker") {
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -65,7 +67,11 @@ fun WalkerHomeScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = true,
-                    onCloseDrawer = { scope.launch { drawerState.close() } }
+                    userName = state.userName,
+                    onCloseDrawer = { scope.launch { drawerState.close() } },
+                    onLogoutClick = {
+                        showLogoutDialog = true
+                    }
                 )
             }
         ) {
@@ -168,6 +174,35 @@ fun WalkerHomeScreen(
                     item { Spacer(modifier = Modifier.height(32.dp)) }
                 }
             }
+        }
+
+        // Diálogo de confirmación de logout
+        if (showLogoutDialog) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                title = { Text("Cerrar Sesión") },
+                text = { Text("¿Estás seguro de que deseas cerrar sesión?") },
+                confirmButton = {
+                    androidx.compose.material3.TextButton(
+                        onClick = {
+                            showLogoutDialog = false
+                            viewModel.logout()
+                            navController.navigate(NavRoutes.Onboarding.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Text("Cerrar Sesión")
+                    }
+                },
+                dismissButton = {
+                    androidx.compose.material3.TextButton(
+                        onClick = { showLogoutDialog = false }
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+            )
         }
     }
 }

@@ -1,24 +1,44 @@
 package com.mdavila_2001.gopuppy.ui.views.requestwalk
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -49,8 +69,13 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import com.mdavila_2001.gopuppy.data.remote.models.address.Address
+import com.mdavila_2001.gopuppy.data.remote.models.pet.Pet
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
+import com.mdavila_2001.gopuppy.ui.components.global.cards.WalkerCard
+import com.mdavila_2001.gopuppy.ui.components.global.inputs.Input
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +83,7 @@ fun RequestWalkScreen(
     navController: NavController,
     viewModel: RequestWalkViewModel = viewModel()
 ) {
+
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -159,8 +185,8 @@ fun RequestWalkScreen(
                         }
 
                         state.nearbyWalkers.forEach { walker ->
-                            val wLat = walker.current_latitude?.toDoubleOrNull()
-                            val wLng = walker.current_latitude?.toDoubleOrNull()
+                            val wLat = walker.latitude
+                            val wLng = walker.longitude
                             if (wLat != null && wLng != null) {
                                 Marker(
                                     state = rememberMarkerState(position = LatLng(wLat, wLng)),
@@ -245,7 +271,7 @@ fun RequestWalkScreen(
                             modifier = Modifier.weight(1f),
                             trailingIcon = {
                                 IconButton(onClick = {
-                                    showDatePicker(context) { y, m, d ->
+                                    showDatePicker(context) { y: Int, m: Int, d: Int ->
                                         dateText = "$d/${m+1}/$y"
                                         // Guardamos parcial YYYY-MM-DD
                                         scheduledAt = String.format("%04d-%02d-%02d", y, m + 1, d) + " " + (if(timeText.isEmpty()) "00:00" else timeText)
@@ -264,7 +290,7 @@ fun RequestWalkScreen(
                             modifier = Modifier.weight(1f),
                             trailingIcon = {
                                 IconButton(onClick = {
-                                    showTimePicker(context) { h, min ->
+                                    showTimePicker(context) { h: Int, min: Int ->
                                         timeText = String.format("%02d:%02d", h, min)
                                         // Completamos YYYY-MM-DD HH:mm
                                         val datePart = if(scheduledAt.contains(" ")) scheduledAt.split(" ")[0] else scheduledAt
@@ -278,14 +304,13 @@ fun RequestWalkScreen(
                     }
 
                     // DURACIÓN Y NOTAS
-                    CamiDogInput(
+                    Input(
                         text = duration,
                         onValueChange = { duration = it },
-                        label = "Duración (minutos)",
-                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                        label = "Duración (minutos)"
                     )
 
-                    CamiDogInput(
+                    Input(
                         text = notes,
                         onValueChange = { notes = it },
                         label = "Notas para el paseador",
@@ -298,9 +323,7 @@ fun RequestWalkScreen(
             }
         }
     }
-}
 
-// --- COMPONENTES AUXILIARES ---
 
 @Composable
 fun AddressDropdown(

@@ -53,12 +53,11 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
 
-    // Navegar a la pantalla de transición cuando el login sea exitoso
+    // Navegar directamente al home cuando el login sea exitoso
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess && uiState.userName != null) {
-            navController.navigate(
-                NavRoutes.WelcomeTransition.createRoute(uiState.userName!!, uiState.isWalker)
-            ) {
+            val destination = if (uiState.isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
+            navController.navigate(destination) {
                 popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
             }
             viewModel.resetState()

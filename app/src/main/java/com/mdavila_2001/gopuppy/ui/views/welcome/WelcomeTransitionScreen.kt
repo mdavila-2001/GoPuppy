@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import kotlinx.coroutines.delay
 
+/* CLASE COMPLETA COMENTADA - WelcomeTransitionScreen
 @Composable
 fun WelcomeTransitionScreen(
     navController: NavController,
@@ -101,3 +102,4 @@ fun WelcomeTransitionScreen(
         }
     }
 }
+*/

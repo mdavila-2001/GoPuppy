@@ -52,18 +52,7 @@ fun NavigationApp(modifier: Modifier) {
             val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
             RegisterScreen(navController, isWalker)
         }
-        composable(
-            route = NavRoutes.WelcomeTransition.route,
-            arguments = NavRoutes.WelcomeTransition.arguments
-        ) { backStackEntry ->
-            val userName = backStackEntry.arguments?.getString("userName") ?: "Usuario"
-            val isWalker = backStackEntry.arguments?.getBoolean("isWalker") ?: false
-            com.mdavila_2001.gopuppy.ui.views.welcome.WelcomeTransitionScreen(
-                navController = navController,
-                userName = userName,
-                isWalker = isWalker
-            )
-        }
+        // WelcomeTransition removido - navegación directa al Home
         composable(NavRoutes.OwnerHome.route) {
             OwnerHomeScreen(navController)
         }
@@ -79,14 +68,11 @@ fun NavigationApp(modifier: Modifier) {
             PetFormScreen(navController, petId)
         }
         composable(NavRoutes.RequestWalk.route) {
-            RequestWalkScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToAddPet = { navController.navigate(NavRoutes.PetForm.route) }
-            )
+            RequestWalkScreen(navController = navController)
         }
         composable(NavRoutes.WalkerSearch.route) {
             WalkerSearchScreen(
-                viewModel = WalkerSearchViewModel(),
+                viewModel = viewModel(),
                 navController = navController
             )
         }

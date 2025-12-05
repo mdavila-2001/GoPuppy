@@ -21,7 +21,8 @@ data class WalkerHomeUiState(
     val newRequests: List<Walk> = emptyList(),
     val upcomingWalks: List<Walk> = emptyList(),
     val errorMessage: String? = null,
-    val currentWalkerId: Int? = null
+    val currentWalkerId: Int? = null,
+    val userName: String = "Paseador"
 )
 class WalkerHomeViewModel(application: Application) : AndroidViewModel(application) {
     private val walkerRepository = WalkerRepository()
@@ -38,6 +39,12 @@ class WalkerHomeViewModel(application: Application) : AndroidViewModel(applicati
 
     fun loadData() {
         viewModelScope.launch {
+            // Cargar perfil del paseador
+            authRepository.getProfile()
+                .onSuccess { userInfo ->
+                    _uiState.value = _uiState.value.copy(userName = userInfo.name)
+                }
+                .onFailure { /* Silencioso, usar valor por defecto */ }
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             val profileResult = authRepository.getProfile()
@@ -137,5 +144,11 @@ class WalkerHomeViewModel(application: Application) : AndroidViewModel(applicati
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            authRepository.logout()
+        }
     }
 }
