@@ -72,12 +72,7 @@ fun NavigationApp(modifier: Modifier) {
                 onNavigateToAddPet = { navController.navigate(NavRoutes.PetForm.route) }
             )
         }
-        composable(NavRoutes.WalkerSearch.route) {
-            WalkerSearchScreen(
-                viewModel = WalkerSearchViewModel(),
-                navController = navController
-            )
-        }
+
         composable(NavRoutes.WalkerDetail.route) {
             PlaceholderScreen("WalkerDetail")
         }

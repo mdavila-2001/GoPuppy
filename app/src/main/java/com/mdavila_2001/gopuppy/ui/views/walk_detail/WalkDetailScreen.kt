@@ -161,8 +161,8 @@ fun WalkDetailScreen(
                 } else if (state.walk != null) {
                     val walk = state.walk!!
 
-                    val lat = walk.address.latitude.toDoubleOrNull() ?: -17.7833
-                    val lng = walk.address.longitude.toDoubleOrNull() ?: -63.1821
+                    val lat = walk.address.latitude?.toDoubleOrNull() ?: -17.7833
+                    val lng = walk.address.longitude?.toDoubleOrNull() ?: -63.1821
 
                     Column(
                         modifier = Modifier

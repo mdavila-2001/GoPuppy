@@ -71,8 +71,8 @@ class RequestWalkViewModel(application: Application) : AndroidViewModel(applicat
 
     private fun searchWalkers(address: Address) {
         viewModelScope.launch {
-            val lat = address.latitude.toDoubleOrNull() ?: 0.0
-            val lng = address.longitude.toDoubleOrNull() ?: 0.0
+            val lat = address.latitude?.toDoubleOrNull() ?: -17.7833 // Santa Cruz por defecto
+            val lng = address.longitude?.toDoubleOrNull() ?: -63.1821
 
             val result = walkerRepository.getNearbyWalkers(lat, lng)
             val walkers = result.getOrDefault(emptyList())

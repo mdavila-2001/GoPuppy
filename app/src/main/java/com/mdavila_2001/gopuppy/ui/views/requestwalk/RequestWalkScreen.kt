@@ -103,8 +103,8 @@ fun RequestWalkScreen(
 
     LaunchedEffect(state.selectedAddress) {
         state.selectedAddress?.let { address ->
-            val lat = address.latitude.toDoubleOrNull() ?: -17.7833
-            val lng = address.longitude.toDoubleOrNull() ?: -63.1821
+            val lat = address.latitude?.toDoubleOrNull() ?: -17.7833
+            val lng = address.longitude?.toDoubleOrNull() ?: -63.1821
             cameraPositionState.animate(
                 update = CameraUpdateFactory.newCameraPosition(
                     CameraPosition.fromLatLngZoom(LatLng(lat, lng), 15f)
@@ -173,10 +173,10 @@ fun RequestWalkScreen(
                         cameraPositionState = cameraPositionState,
                         uiSettings = MapUiSettings(zoomControlsEnabled = true)
                     ) {
-                        if (state.selectedAddress != null) {
+                        state.selectedAddress?.let { selectedAddr ->
                             val myPos = LatLng(
-                                state.selectedAddress!!.latitude.toDoubleOrNull() ?: 0.0,
-                                state.selectedAddress!!.longitude.toDoubleOrNull() ?: 0.0
+                                selectedAddr.latitude?.toDoubleOrNull() ?: -17.7833,
+                                selectedAddr.longitude?.toDoubleOrNull() ?: -63.1821
                             )
                             Marker(
                                 state = rememberUpdatedMarkerState(position = myPos),
