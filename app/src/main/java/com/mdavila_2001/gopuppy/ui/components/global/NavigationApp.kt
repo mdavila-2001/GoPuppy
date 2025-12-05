@@ -68,7 +68,10 @@ fun NavigationApp(modifier: Modifier) {
             PetFormScreen(navController, petId)
         }
         composable(NavRoutes.RequestWalk.route) {
-            RequestWalkScreen(navController = navController)
+            RequestWalkScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToAddPet = { navController.navigate(NavRoutes.PetForm.route) }
+            )
         }
         composable(NavRoutes.WalkerSearch.route) {
             WalkerSearchScreen(
