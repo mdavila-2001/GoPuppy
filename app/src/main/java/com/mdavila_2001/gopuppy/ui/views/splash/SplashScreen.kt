@@ -18,13 +18,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mdavila_2001.gopuppy.R
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(
+    navController: NavController,
+    viewModel: SplashViewModel = viewModel()
+) {
     val alphaAnim = remember { Animatable(0f) }
     val offsetXAnim = remember { Animatable(0f) }
 
@@ -35,15 +39,25 @@ fun SplashScreen(navController: NavController) {
         )
 
         delay(2000)
+
+        viewModel.checkSession { hasSession, isWalker ->
+            if (hasSession) {
+                val destination = if (isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
+
+                navController.navigate(destination) {
+                    popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                }
+            } else {
+                navController.navigate(NavRoutes.Onboarding.route) {
+                    popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                }
+            }
+        }
         
         offsetXAnim.animateTo(
             targetValue = 2000f,
             animationSpec = tween(durationMillis = 500)
         )
-
-        navController.navigate(NavRoutes.Onboarding.route) {
-            popUpTo(NavRoutes.Splash.route) { inclusive = true }
-        }
     }
 
     Box(

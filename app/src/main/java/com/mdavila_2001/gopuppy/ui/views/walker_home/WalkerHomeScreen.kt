@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
@@ -73,7 +72,7 @@ fun WalkerHomeScreen(
                                 )
                             }
                         },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                     )
                 }
             ) { padding ->
@@ -91,7 +90,7 @@ fun WalkerHomeScreen(
                     Spacer(Modifier.height(8.dp))
                     
                     if (state.upcomingWalks.isEmpty()) {
-                        Text("No tienes paseos programados", color = Color.Gray)
+                        Text("No tienes paseos programados", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                     } else {
                         state.upcomingWalks.forEach { walk ->
                             WalkerUpcomingWalkCard(
@@ -119,7 +118,7 @@ fun WalkerHomeScreen(
                     Spacer(Modifier.height(8.dp))
                     
                     if (state.newRequests.isEmpty()) {
-                        Text("No hay nuevas solicitudes", color = Color.Gray)
+                        Text("No hay nuevas solicitudes", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                     } else {
                         state.newRequests.forEach { request ->
                             WalkerRequestCard(
@@ -140,18 +139,18 @@ fun WalkerHomeScreen(
 fun WalkerUpcomingWalkCard(walk: WalkerWalkUiModel, onClick: () -> Unit = {}) {
     Card(
         onClick = onClick,
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("${walk.date}, ${walk.time}", color = Color(0xFFFF9800), fontWeight = FontWeight.Bold)
+            Text("${walk.date}, ${walk.time}", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
             Text("Paseo de ${walk.duration} min", fontWeight = FontWeight.Medium)
-            Text(walk.address, color = Color.Gray)
+            Text(walk.address, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             Spacer(Modifier.height(4.dp))
             Text("${walk.petName}, ${walk.petBreed}", fontWeight = FontWeight.Medium)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Button(onClick = { /* TODO: Iniciar paseo */ }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))) {
-                    Text("Iniciar", color = Color.White)
+                Button(onClick = { /* TODO: Iniciar paseo */ }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)) {
+                    Text("Iniciar", color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }
@@ -161,7 +160,7 @@ fun WalkerUpcomingWalkCard(walk: WalkerWalkUiModel, onClick: () -> Unit = {}) {
 @Composable
 fun WalkerRequestCard(request: WalkerRequestUiModel, onAccept: () -> Unit, onReject: () -> Unit) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -169,15 +168,15 @@ fun WalkerRequestCard(request: WalkerRequestUiModel, onAccept: () -> Unit, onRej
             // Icon(painter = painterResource(id = R.drawable.ic_pet), contentDescription = null)
             Column(Modifier.weight(1f)) {
                 Text("${request.petName}, ${request.petBreed}", fontWeight = FontWeight.Bold)
-                Text("${request.date}, ${request.time} - ${request.duration} min", color = Color.Gray)
+                Text("${request.date}, ${request.time} - ${request.duration} min", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
             Spacer(Modifier.width(8.dp))
-            Button(onClick = onReject, colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)) {
-                Text("Rechazar", color = Color.DarkGray)
+            Button(onClick = onReject, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Text("Rechazar", color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(Modifier.width(8.dp))
-            Button(onClick = onAccept, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))) {
-                Text("Aceptar", color = Color.White)
+            Button(onClick = onAccept, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)) {
+                Text("Aceptar", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }

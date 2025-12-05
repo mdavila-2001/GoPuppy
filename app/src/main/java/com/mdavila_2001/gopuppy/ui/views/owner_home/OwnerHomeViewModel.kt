@@ -1,9 +1,11 @@
 package com.mdavila_2001.gopuppy.ui.views.owner_home
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.remote.models.pet.Pet
+import com.mdavila_2001.gopuppy.data.repository.AuthRepository
 import com.mdavila_2001.gopuppy.data.repository.PetRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +17,9 @@ data class OwnerHomeState(
     val errorMessage: String? = null
 )
 
-class OwnerHomeViewModel : ViewModel() {
+class OwnerHomeViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = PetRepository()
+    private val authRepository = AuthRepository(application.applicationContext)
 
     private val _state = MutableStateFlow(OwnerHomeState())
     val state: StateFlow<OwnerHomeState> = _state
@@ -70,5 +73,12 @@ class OwnerHomeViewModel : ViewModel() {
 
     fun clearError() {
         _state.value = _state.value.copy(errorMessage = null)
+    }
+
+    fun logout(onLogoutComplete: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.logout()
+            onLogoutComplete()
+        }
     }
 }

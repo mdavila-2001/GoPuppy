@@ -1,6 +1,7 @@
 package com.mdavila_2001.gopuppy.ui.views.walker_profile
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,8 +23,8 @@ data class WalkerProfileState(
     val successMessage: String? = null
 )
 
-class WalkerProfileViewModel : ViewModel() {
-    private val authRepository = AuthRepository()
+class WalkerProfileViewModel(application: Application) : AndroidViewModel(application) {
+    private val authRepository = AuthRepository(application.applicationContext)
 
     private val _state = MutableStateFlow(WalkerProfileState())
     val state: StateFlow<WalkerProfileState> = _state.asStateFlow()
@@ -76,6 +77,13 @@ class WalkerProfileViewModel : ViewModel() {
                 isLoading = false,
                 successMessage = "Cambios guardados exitosamente"
             )
+        }
+    }
+
+    fun logout(onLogoutComplete: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.logout()
+            onLogoutComplete()
         }
     }
 

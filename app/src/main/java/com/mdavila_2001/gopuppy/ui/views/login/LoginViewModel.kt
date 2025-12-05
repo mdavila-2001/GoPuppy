@@ -1,5 +1,7 @@
 package com.mdavila_2001.gopuppy.ui.views.login
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository
@@ -16,10 +18,9 @@ data class LoginUiState(
     val userName: String? = null
 )
 
-class LoginViewModel(
-    private val authRepository: AuthRepository = AuthRepository()
-) : ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val authRepository = AuthRepository(application.applicationContext)
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 

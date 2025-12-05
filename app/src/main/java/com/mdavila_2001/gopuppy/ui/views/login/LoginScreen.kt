@@ -112,7 +112,7 @@ fun LoginScreen(
             Input(
                 text = email,
                 onValueChange = { email = it },
-                label = "Correo o usuario",
+                label = "Correo electrónico",
                 modifier = Modifier.fillMaxWidth()
             )
 

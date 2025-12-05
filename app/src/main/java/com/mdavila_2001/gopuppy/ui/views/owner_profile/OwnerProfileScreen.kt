@@ -52,6 +52,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mdavila_2001.gopuppy.ui.components.global.AppBar
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.DangerButton
+import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import kotlinx.coroutines.launch
@@ -70,6 +71,7 @@ fun OwnerProfileScreen(
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Sincronizar con el estado del ViewModel
     LaunchedEffect(state.name, state.email, state.phone) {
@@ -101,6 +103,9 @@ fun OwnerProfileScreen(
                         scope.launch {
                             drawerState.close()
                         }
+                    },
+                    onLogoutClick = {
+                        showLogoutDialog = true
                     }
                 )
             }
@@ -240,30 +245,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Campo Teléfono
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "Teléfono",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        OutlinedTextField(
-                            value = phone,
-                            onValueChange = { phone = it },
-                            placeholder = { Text("+1 234 567 890") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                            )
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
                     // Botón Guardar Cambios
                     Button(
                         text = "Guardar Cambios",
@@ -341,15 +322,34 @@ fun OwnerProfileScreen(
                     DangerButton(
                         text = "Cerrar Sesión",
                         onClick = {
-                            // TODO: Implementar cierre de sesión
-                            navController.navigate("onboarding") {
-                                popUpTo(0) { inclusive = true }
-                            }
+                            showLogoutDialog = true
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Diálogo de confirmación de logout
+                if (showLogoutDialog) {
+                    ConfirmDialog(
+                        title = "Cerrar Sesión",
+                        message = "¿Estás seguro de que deseas cerrar sesión?",
+                        confirmText = "Cerrar Sesión",
+                        cancelText = "Cancelar",
+                        isDanger = true,
+                        onConfirm = {
+                            showLogoutDialog = false
+                            viewModel.logout {
+                                navController.navigate("onboarding") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        },
+                        onDismiss = {
+                            showLogoutDialog = false
+                        }
+                    )
                 }
             }
         }

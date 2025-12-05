@@ -1,6 +1,7 @@
 package com.mdavila_2001.gopuppy.ui.views.owner_profile
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,8 +19,8 @@ data class OwnerProfileState(
     val successMessage: String? = null
 )
 
-class OwnerProfileViewModel : ViewModel() {
-    private val authRepository = AuthRepository()
+class OwnerProfileViewModel(application: Application) : AndroidViewModel(application) {
+    private val authRepository = AuthRepository(application.applicationContext)
 
     private val _state = MutableStateFlow(OwnerProfileState())
     val state: StateFlow<OwnerProfileState> = _state.asStateFlow()
@@ -37,7 +38,6 @@ class OwnerProfileViewModel : ViewModel() {
                     _state.value = _state.value.copy(
                         name = userInfo.name,
                         email = userInfo.email,
-                        phone = "", // TODO: Agregar teléfono a la API
                         photoUrl = userInfo.photoUrl,
                         isLoading = false
                     )
@@ -65,6 +65,13 @@ class OwnerProfileViewModel : ViewModel() {
                 isLoading = false,
                 successMessage = "Cambios guardados exitosamente"
             )
+        }
+    }
+
+    fun logout(onLogoutComplete: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.logout()
+            onLogoutComplete()
         }
     }
 

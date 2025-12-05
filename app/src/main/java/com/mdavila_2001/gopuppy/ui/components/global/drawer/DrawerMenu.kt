@@ -31,14 +31,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.mdavila_2001.gopuppy.data.remote.network.RetrofitInstance
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 
 @Composable
 fun DrawerMenu(
     navController: NavController,
     isWalker: Boolean = false,
-    onCloseDrawer: () -> Unit
+    onCloseDrawer: () -> Unit,
+    onLogoutClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -156,14 +156,8 @@ fun DrawerMenu(
             icon = Icons.Default.ExitToApp,
             title = "Cerrar Sesión",
             onClick = {
-                // Limpiar el token de autenticación
-                RetrofitInstance.authToken = null
-                
-                // Navegar a la pantalla de Onboarding y limpiar el back stack
-                navController.navigate(NavRoutes.Onboarding.route) {
-                    popUpTo(0) { inclusive = true }
-                }
                 onCloseDrawer()
+                onLogoutClick()
             }
         )
         

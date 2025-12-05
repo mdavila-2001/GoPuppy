@@ -1,5 +1,7 @@
 package com.mdavila_2001.gopuppy.ui.views.register
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.remote.models.auth.signup.OwnerSignupDTO
@@ -18,10 +20,9 @@ data class RegisterUiState(
     val userName: String? = null
 )
 
-class RegisterViewModel(
-    private val authRepository: AuthRepository = AuthRepository()
-) : ViewModel() {
+class RegisterViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val authRepository: AuthRepository = AuthRepository(application.applicationContext)
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
 
