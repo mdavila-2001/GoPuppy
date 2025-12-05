@@ -2,6 +2,7 @@ package com.mdavila_2001.gopuppy.ui.views.walker_home
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -115,13 +116,22 @@ fun WalkerHomeScreen(
                                         viewModel.toggleAvailability(true)
                                     } else {
                                         // No tiene permiso, lo pedimos
-                                        permissionLauncher.launch(
-                                            arrayOf(
-                                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                                Manifest.permission.POST_NOTIFICATIONS // Para Android 13+
-                                            )
+                                        val permissionsToRequest = mutableListOf(
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION
                                         )
+                                        
+                                        // Android 13+ requiere POST_NOTIFICATIONS
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+                                        }
+                                        
+                                        // Android 14+ requiere FOREGROUND_SERVICE_LOCATION
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                            permissionsToRequest.add("android.permission.FOREGROUND_SERVICE_LOCATION")
+                                        }
+                                        
+                                        permissionLauncher.launch(permissionsToRequest.toTypedArray())
                                     }
                                 } else {
                                     viewModel.toggleAvailability(false)

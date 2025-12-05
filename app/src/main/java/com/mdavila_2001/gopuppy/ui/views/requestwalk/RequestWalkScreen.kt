@@ -31,10 +31,10 @@ import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -68,7 +68,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.mdavila_2001.gopuppy.data.remote.models.address.Address
 import com.mdavila_2001.gopuppy.data.remote.models.pet.Pet
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
@@ -76,14 +76,15 @@ import com.mdavila_2001.gopuppy.ui.components.global.cards.WalkerCard
 import com.mdavila_2001.gopuppy.ui.components.global.inputs.Input
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import java.util.Calendar
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RequestWalkScreen(
-    navController: NavController,
+    onNavigateBack: () -> Unit,
+    onNavigateToAddPet: () -> Unit,
     viewModel: RequestWalkViewModel = viewModel()
 ) {
-
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -121,7 +122,7 @@ fun RequestWalkScreen(
         state.successMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             viewModel.clearMessages()
-            navController.navigateUp() // Volver al Home
+            onNavigateBack() // Volver al Home
         }
     }
 
@@ -131,7 +132,7 @@ fun RequestWalkScreen(
                 TopAppBar(
                     title = { Text("Solicitar Paseo", fontWeight = FontWeight.Bold) },
                     navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
+                        IconButton(onClick = { onNavigateBack() }) {
                             Icon(Icons.Default.ArrowBack, "Volver")
                         }
                     },
@@ -178,7 +179,7 @@ fun RequestWalkScreen(
                                 state.selectedAddress!!.longitude.toDoubleOrNull() ?: 0.0
                             )
                             Marker(
-                                state = rememberMarkerState(position = myPos),
+                                state = rememberUpdatedMarkerState(position = myPos),
                                 title = "Punto de Encuentro",
                                 icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                             )
@@ -189,7 +190,7 @@ fun RequestWalkScreen(
                             val wLng = walker.longitude
                             if (wLat != null && wLng != null) {
                                 Marker(
-                                    state = rememberMarkerState(position = LatLng(wLat, wLng)),
+                                    state = rememberUpdatedMarkerState(position = LatLng(wLat, wLng)),
                                     title = walker.name,
                                     icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE),
                                     onClick = {
@@ -241,7 +242,7 @@ fun RequestWalkScreen(
                         )
                     }
 
-                    Divider()
+                    HorizontalDivider()
 
                     // SECCIÓN MASCOTA
                     Text("¿A quién paseamos?", fontWeight = FontWeight.Bold)
@@ -271,10 +272,10 @@ fun RequestWalkScreen(
                             modifier = Modifier.weight(1f),
                             trailingIcon = {
                                 IconButton(onClick = {
-                                    showDatePicker(context) { y: Int, m: Int, d: Int ->
+                                    showDatePicker(context) { y, m, d ->
                                         dateText = "$d/${m+1}/$y"
                                         // Guardamos parcial YYYY-MM-DD
-                                        scheduledAt = String.format("%04d-%02d-%02d", y, m + 1, d) + " " + (if(timeText.isEmpty()) "00:00" else timeText)
+                                        scheduledAt = String.format(Locale.getDefault(), "%04d-%02d-%02d", y, m + 1, d) + " " + (if(timeText.isEmpty()) "00:00" else timeText)
                                     }
                                 }) {
                                     Icon(Icons.Default.CalendarToday, null)
@@ -290,8 +291,8 @@ fun RequestWalkScreen(
                             modifier = Modifier.weight(1f),
                             trailingIcon = {
                                 IconButton(onClick = {
-                                    showTimePicker(context) { h: Int, min: Int ->
-                                        timeText = String.format("%02d:%02d", h, min)
+                                    showTimePicker(context) { h, min ->
+                                        timeText = String.format(Locale.getDefault(), "%02d:%02d", h, min)
                                         // Completamos YYYY-MM-DD HH:mm
                                         val datePart = if(scheduledAt.contains(" ")) scheduledAt.split(" ")[0] else scheduledAt
                                         scheduledAt = "$datePart $timeText"
@@ -307,7 +308,8 @@ fun RequestWalkScreen(
                     Input(
                         text = duration,
                         onValueChange = { duration = it },
-                        label = "Duración (minutos)"
+                        label = "Duración (minutos)",
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                     )
 
                     Input(
@@ -323,7 +325,9 @@ fun RequestWalkScreen(
             }
         }
     }
+}
 
+// --- COMPONENTES AUXILIARES ---
 
 @Composable
 fun AddressDropdown(
@@ -382,7 +386,7 @@ fun PetSelectionCard(pet: Pet, isSelected: Boolean, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
         ),
-        border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)
+        border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else BorderStroke(1.dp, Color.LightGray)
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(8.dp),
