@@ -74,13 +74,13 @@ fun WalkDetailScreen(
     isWalker: Boolean = false,
     viewModel: WalkDetailViewModel = viewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.uiState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     // Cargar detalles del paseo
     LaunchedEffect(walkId) {
-        viewModel.loadWalkDetail(walkId)
+        viewModel.loadWalkDetails(walkId)
     }
 
     GoPuppyTheme(role = if (isWalker) "walker" else "owner") {
