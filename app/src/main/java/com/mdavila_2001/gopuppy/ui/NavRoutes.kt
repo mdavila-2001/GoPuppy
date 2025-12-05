@@ -27,6 +27,9 @@ sealed class NavRoutes(val route: String, val arguments: List<NamedNavArgument> 
         fun createRoute(isWalker: Boolean) = "register/$isWalker"
     }
 
+    object Addresses : NavRoutes("address")
+    object AddressForm : NavRoutes("address_form")
+
     object OwnerHome : NavRoutes("owner_home")
     object MyPets : NavRoutes("my_pets")
 

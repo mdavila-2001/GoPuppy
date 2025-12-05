@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationSearching
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Search
@@ -110,6 +111,15 @@ fun DrawerMenu(
                 title = "Registrar Mascota",
                 onClick = {
                     navController.navigate(NavRoutes.PetForm.route)
+                    onCloseDrawer()
+                }
+            )
+
+            DrawerMenuItem(
+                icon = Icons.Default.LocationSearching,
+                title = "Mis Lugares",
+                onClick = {
+                    navController.navigate(NavRoutes.Addresses.route)
                     onCloseDrawer()
                 }
             )

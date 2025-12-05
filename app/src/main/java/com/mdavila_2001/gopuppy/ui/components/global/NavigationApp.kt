@@ -11,6 +11,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.views.OnboardingScreen
+import com.mdavila_2001.gopuppy.ui.views.address.AddressListScreen
+import com.mdavila_2001.gopuppy.ui.views.address_form.AddressFormScreen
 import com.mdavila_2001.gopuppy.ui.views.splash.SplashScreen
 import com.mdavila_2001.gopuppy.ui.views.login.LoginScreen
 import com.mdavila_2001.gopuppy.ui.views.register.RegisterScreen
@@ -84,6 +86,12 @@ fun NavigationApp(modifier: Modifier) {
         }
         composable(NavRoutes.WalkerHome.route) {
             WalkerHomeScreen(navController = navController)
+        }
+        composable(NavRoutes.Addresses.route) {
+            AddressListScreen(navController = navController)
+        }
+        composable(NavRoutes.AddressForm.route) {
+            AddressFormScreen(navController = navController)
         }
         composable(NavRoutes.Requests.route) {
             PlaceholderScreen("Requests")

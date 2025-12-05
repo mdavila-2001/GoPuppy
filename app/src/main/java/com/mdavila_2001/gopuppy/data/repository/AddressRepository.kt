@@ -22,13 +22,13 @@ class AddressRepository {
         }
     }
 
-    suspend fun addAddress(label: String, address: String, lat: Double, lng: Double): Result<Address> {
+    suspend fun addAddress(label: String, address: String, latitude: Double, longitude: Double): Result<Address> {
         return try {
             val dto = AddressDTO(
                 label = label,
                 address = address,
-                lat = lat.toString(),
-                lng = lng.toString()
+                latitude = latitude.toString(),
+                longitude = longitude.toString()
             )
             val response = api.addAddress(dto)
 
