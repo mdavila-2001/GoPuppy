@@ -99,6 +99,7 @@ fun OwnerProfileScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = false,
+                    userName = state.name.ifBlank { "Usuario" },
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()
@@ -279,7 +280,11 @@ fun OwnerProfileScreen(
                                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
                                 shape = RoundedCornerShape(12.dp)
                             )
-                            .clickable { /* TODO: Navegar a gestión de mascotas */ }
+                            .clickable { 
+                                navController.navigate("owner_home") {
+                                    popUpTo("owner_home") { inclusive = true }
+                                }
+                            }
                             .padding(16.dp)
                     ) {
                         Text(

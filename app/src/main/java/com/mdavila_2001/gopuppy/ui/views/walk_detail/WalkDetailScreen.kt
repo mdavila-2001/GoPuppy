@@ -90,6 +90,9 @@ fun WalkDetailScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = isWalker,
+                    userName = state.walk?.let { 
+                        if (isWalker) it.walker.name else it.owner.name 
+                    } ?: if (isWalker) "Paseador" else "Dueño",
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()

@@ -8,9 +8,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
@@ -19,8 +21,12 @@ import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalkerHomeScreen(
-    viewModel: WalkerHomeViewModel,
-    navController: NavController
+    navController: NavController,
+    viewModel: WalkerHomeViewModel = viewModel(
+        factory = WalkerHomeViewModelFactory(
+            LocalContext.current.applicationContext as android.app.Application
+        )
+    )
 ) {
     val state by viewModel.state.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -33,6 +39,7 @@ fun WalkerHomeScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = true,
+                    userName = state.userName,
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()

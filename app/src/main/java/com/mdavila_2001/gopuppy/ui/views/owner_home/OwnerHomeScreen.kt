@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -82,6 +83,7 @@ fun OwnerHomeScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = false,
+                    userName = state.userName,
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()
@@ -132,7 +134,7 @@ fun OwnerHomeScreen(
                         )
                     )
                 }
-            ) { paddingValues ->
+                ) { paddingValues ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -141,38 +143,45 @@ fun OwnerHomeScreen(
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
                 ) {
-                    // Botón: Solicitar Paseo
-                    Button(
-                        onClick = { navController.navigate(NavRoutes.RequestWalk.route) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(50.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
+                    // Sección: Paseo Activo con botón de Nuevo Viaje
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.DirectionsWalk,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
                         Text(
-                            text = "Solicitar Paseo",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            text = "Paseo Activo",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
+                        
+                        Button(
+                            onClick = { navController.navigate(NavRoutes.RequestWalk.route) },
+                            modifier = Modifier.height(40.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            contentPadding = PaddingValues(
+                                horizontal = 16.dp,
+                                vertical = 8.dp
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DirectionsWalk,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .height(20.dp)
+                            )
+                            Text(
+                                text = "Nuevo viaje",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Sección: Paseo Activo
-                    Text(
-                        text = "Paseo Activo",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     

@@ -1,8 +1,10 @@
 package com.mdavila_2001.gopuppy.ui.views.walk_history
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
+import com.mdavila_2001.gopuppy.data.repository.AuthRepository
 import com.mdavila_2001.gopuppy.data.repository.WalkRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,17 +16,28 @@ data class WalkHistoryState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val searchQuery: String = "",
-    val selectedFilter: String = "Todos" // Todos, Completados, Cancelados, etc.
+    val selectedFilter: String = "Todos", // Todos, Completados, Cancelados, etc.
+    val userName: String = "Usuario"
 )
 
-class WalkHistoryViewModel : ViewModel() {
+class WalkHistoryViewModel(application: Application) : AndroidViewModel(application) {
     private val walkRepository = WalkRepository()
+    private val authRepository = AuthRepository(application.applicationContext)
 
     private val _state = MutableStateFlow(WalkHistoryState())
     val state: StateFlow<WalkHistoryState> = _state.asStateFlow()
 
     init {
         loadWalkHistory()
+        loadUserName()
+    }
+    
+    private fun loadUserName() {
+        viewModelScope.launch {
+            authRepository.getProfile().onSuccess { userInfo ->
+                _state.value = _state.value.copy(userName = userInfo.name)
+            }
+        }
     }
 
     fun loadWalkHistory() {
@@ -86,5 +99,17 @@ class WalkHistoryViewModel : ViewModel() {
 
     fun clearError() {
         _state.value = _state.value.copy(errorMessage = null)
+    }
+}
+
+class WalkHistoryViewModelFactory(
+    private val application: Application
+) : androidx.lifecycle.ViewModelProvider.Factory {
+    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(WalkHistoryViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return WalkHistoryViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

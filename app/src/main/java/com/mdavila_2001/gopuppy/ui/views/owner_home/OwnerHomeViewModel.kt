@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 data class OwnerHomeState(
     val isLoading: Boolean = false,
     val pets: List<Pet> = emptyList(),
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val userName: String = "Usuario"
 )
 
 class OwnerHomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -26,6 +27,15 @@ class OwnerHomeViewModel(application: Application) : AndroidViewModel(applicatio
 
     init {
         loadPets()
+        loadUserName()
+    }
+    
+    private fun loadUserName() {
+        viewModelScope.launch {
+            authRepository.getProfile().onSuccess { userInfo ->
+                _state.value = _state.value.copy(userName = userInfo.name)
+            }
+        }
     }
 
     fun loadPets() {

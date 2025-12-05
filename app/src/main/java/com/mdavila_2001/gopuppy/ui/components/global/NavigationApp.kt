@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,7 +19,6 @@ import com.mdavila_2001.gopuppy.ui.views.owner_home.OwnerHomeScreen
 import com.mdavila_2001.gopuppy.ui.views.pet_form.PetFormScreen
 import com.mdavila_2001.gopuppy.ui.views.requestwalk.RequestWalkScreen
 import com.mdavila_2001.gopuppy.ui.views.walker_home.WalkerHomeScreen
-import com.mdavila_2001.gopuppy.ui.views.walker_home.WalkerHomeViewModel
 import com.mdavila_2001.gopuppy.ui.views.walker_search.WalkerSearchScreen
 import com.mdavila_2001.gopuppy.ui.views.walker_search.WalkerSearchViewModel
 
@@ -95,7 +95,7 @@ fun NavigationApp(modifier: Modifier) {
             PlaceholderScreen("BookWalk")
         }
         composable(NavRoutes.WalkerHome.route) {
-            WalkerHomeScreen(viewModel = WalkerHomeViewModel(), navController = navController)
+            WalkerHomeScreen(navController = navController)
         }
         composable(NavRoutes.Requests.route) {
             PlaceholderScreen("Requests")

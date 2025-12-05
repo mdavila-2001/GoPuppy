@@ -110,6 +110,7 @@ fun WalkerProfileScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = true,
+                    userName = state.name.ifBlank { "Paseador" },
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()
@@ -276,84 +277,7 @@ fun WalkerProfileScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Mis Calificaciones
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Mis Calificaciones",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                                
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.Star,
-                                        contentDescription = null,
-                                        tint = Color(0xFFFFC107),
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = String.format("%.1f", state.rating),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onBackground
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Placeholder para reseñas
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                                        shape = RoundedCornerShape(12.dp)
-                                    )
-                                    .padding(24.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Aún no tienes reseñas.\n¡Completa tu primer paseo para recibir calificaciones!",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            // Botón Ver todas las reseñas (deshabilitado)
-                            OutlinedButton(
-                                text = "Ver todas las reseñas",
-                                onClick = { /* TODO: Implementar cuando haya reseñas */ },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = false
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
                     // Campo Nombre
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -388,16 +312,47 @@ fun WalkerProfileScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                    // Botón Ver Perfil Público
-                    OutlinedButton(
-                        text = "Ver Perfil Público",
-                        onClick = { /* TODO: Implementar vista pública del perfil */ },
+                    // Gestión de Cuenta
+                    Text(
+                        text = "Gestión de Cuenta",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Botón Gestionar Paseos
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable { 
+                                navController.navigate("walker_home") {
+                                    popUpTo("walker_home") { inclusive = true }
+                                }
+                            }
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Gestionar Paseos",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
 
                     // Botón Cerrar Sesión
                     DangerButton(

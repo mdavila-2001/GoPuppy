@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,7 +32,11 @@ import java.util.*
 @Composable
 fun WalkHistoryScreen(
     navController: NavController,
-    viewModel: WalkHistoryViewModel = viewModel()
+    viewModel: WalkHistoryViewModel = viewModel(
+        factory = WalkHistoryViewModelFactory(
+            LocalContext.current.applicationContext as android.app.Application
+        )
+    )
 ) {
     val state by viewModel.state.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -44,6 +49,7 @@ fun WalkHistoryScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = false,
+                    userName = state.userName,
                     onCloseDrawer = {
                         scope.launch { drawerState.close() }
                     }

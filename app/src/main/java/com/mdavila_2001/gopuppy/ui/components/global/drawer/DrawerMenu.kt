@@ -37,6 +37,7 @@ import com.mdavila_2001.gopuppy.ui.NavRoutes
 fun DrawerMenu(
     navController: NavController,
     isWalker: Boolean = false,
+    userName: String = if (isWalker) "Paseador" else "Dueño",
     onCloseDrawer: () -> Unit,
     onLogoutClick: () -> Unit = {}
 ) {
@@ -63,7 +64,7 @@ fun DrawerMenu(
             
             Column {
                 Text(
-                    text = if (isWalker) "Paseador" else "Dueño",
+                    text = userName,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
