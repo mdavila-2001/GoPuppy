@@ -1,5 +1,9 @@
 package com.mdavila_2001.gopuppy.ui.views.walker_profile
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
@@ -48,6 +53,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil3.compose.AsyncImage
 import com.mdavila_2001.gopuppy.ui.components.global.AppBar
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.DangerButton
@@ -74,6 +82,7 @@ fun WalkerProfileScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -82,13 +91,25 @@ fun WalkerProfileScreen(
     var experience by remember { mutableStateOf("") }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
+    // Estado para la foto de perfil
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var currentPhotoUrl by remember { mutableStateOf<String?>(null) }
+
+    // Launcher para seleccionar imagen de la galería
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+    }
+
     // Sincronizar con el estado del ViewModel
-    LaunchedEffect(state.name, state.email, state.bio, state.pricePerHour, state.experience) {
+    LaunchedEffect(state.name, state.email, state.bio, state.pricePerHour, state.experience, state.photoUrl) {
         name = state.name
         email = state.email
         bio = state.bio
         pricePerHour = state.pricePerHour
         experience = state.experience
+        currentPhotoUrl = state.photoUrl
     }
 
     // Mostrar mensajes
@@ -153,15 +174,47 @@ fun WalkerProfileScreen(
                             modifier = Modifier
                                 .size(120.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .border(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), CircleShape)
+                                .clickable {
+                                    photoPickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = name.take(2).uppercase().ifBlank { "??" },
-                                style = MaterialTheme.typography.headlineLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            when {
+                                selectedImageUri != null -> {
+                                    AsyncImage(
+                                        model = selectedImageUri,
+                                        contentDescription = "Foto de perfil seleccionada",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                                // Segundo: Mostrar foto actual del servidor
+                                !currentPhotoUrl.isNullOrBlank() -> {
+                                    AsyncImage(
+                                        model = currentPhotoUrl,
+                                        contentDescription = "Foto de perfil",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                                // Tercero: Mostrar iniciales como placeholder
+                                else -> {
+                                    Text(
+                                        text = name.take(2).uppercase().ifBlank { "??" },
+                                        style = MaterialTheme.typography.headlineLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         }
                         
                         // Botón de editar foto
@@ -171,12 +224,16 @@ fun WalkerProfileScreen(
                                 .size(36.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
-                                .clickable { /* TODO: Implementar subida de foto */ },
+                                .clickable {
+                                    photoPickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Editar foto",
+                                imageVector = Icons.Default.CameraAlt,
+                                contentDescription = "Cambiar foto",
                                 tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(20.dp)
                             )

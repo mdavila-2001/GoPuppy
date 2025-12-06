@@ -42,16 +42,6 @@ class LocationService : Service() {
 
     @SuppressLint("MissingPermission")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Primero iniciar el foreground service SIEMPRE
-        val notification = NotificationCompat.Builder(this, "walker_location_channel")
-            .setContentTitle("GoPuppy - Modo Paseador Activo")
-            .setContentText("Compartiendo tu ubicación cada 5 min...")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
-        startForeground(1, notification)
-
-        // Luego verificar permisos
         val hasFine = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -69,6 +59,14 @@ class LocationService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+
+        val notification = NotificationCompat.Builder(this, "walker_location_channel")
+            .setContentTitle("GoPuppy - Modo Paseador Activo")
+            .setContentText("Compartiendo tu ubicación cada 5 min...")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
+        startForeground(1, notification)
 
         startLocationUpdates()
 

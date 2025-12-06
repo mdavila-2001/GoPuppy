@@ -2,6 +2,7 @@ package com.mdavila_2001.gopuppy.ui.views.requestwalk
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -52,10 +53,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -78,7 +82,7 @@ import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import java.util.Calendar
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun RequestWalkScreen(
     onNavigateBack: () -> Unit,
@@ -87,6 +91,7 @@ fun RequestWalkScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val view = LocalView.current
     val scrollState = rememberScrollState()
 
     var dateText by remember { mutableStateOf("") } // Para mostrar
@@ -95,22 +100,30 @@ fun RequestWalkScreen(
     var duration by remember { mutableStateOf("30") }
     var notes by remember { mutableStateOf("") }
 
-    val cameraPositionState = rememberCameraPositionState()
+    // Posición inicial por defecto (Santa Cruz, Bolivia)
+    val defaultLocation = LatLng(-17.7833, -63.1821)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(defaultLocation, 14f)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadInitialData()
     }
 
-    LaunchedEffect(state.selectedAddress) {
+    // Centrar mapa cuando cambia la dirección seleccionada
+    LaunchedEffect(state.selectedAddress?.id) {
         state.selectedAddress?.let { address ->
-            val lat = address.latitude?.toDoubleOrNull() ?: -17.7833
-            val lng = address.longitude?.toDoubleOrNull() ?: -63.1821
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newCameraPosition(
-                    CameraPosition.fromLatLngZoom(LatLng(lat, lng), 15f)
-                ),
-                durationMs = 1000
-            )
+            val lat = address.latitude?.toDoubleOrNull()
+            val lng = address.longitude?.toDoubleOrNull()
+
+            if (lat != null && lng != null) {
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.fromLatLngZoom(LatLng(lat, lng), 15f)
+                    ),
+                    durationMs = 800
+                )
+            }
         }
     }
 
@@ -169,9 +182,27 @@ fun RequestWalkScreen(
             ) {
                 Box(modifier = Modifier.height(350.dp).fillMaxWidth()) {
                     GoogleMap(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInteropFilter { motionEvent ->
+                                when (motionEvent.action) {
+                                    MotionEvent.ACTION_DOWN -> {
+                                        view.parent?.requestDisallowInterceptTouchEvent(true)
+                                    }
+                                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                        view.parent?.requestDisallowInterceptTouchEvent(false)
+                                    }
+                                }
+                                false
+                            },
                         cameraPositionState = cameraPositionState,
-                        uiSettings = MapUiSettings(zoomControlsEnabled = true)
+                        uiSettings = MapUiSettings(
+                            zoomControlsEnabled = true,
+                            scrollGesturesEnabled = true,
+                            zoomGesturesEnabled = true,
+                            rotationGesturesEnabled = false,
+                            tiltGesturesEnabled = false
+                        )
                     ) {
                         state.selectedAddress?.let { selectedAddr ->
                             val myPos = LatLng(
@@ -224,13 +255,13 @@ fun RequestWalkScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    // SECCIÓN PASEADOR (Si seleccionó uno en el mapa)
                     if (state.selectedWalker != null) {
                         Text("Paseador Seleccionado", fontWeight = FontWeight.Bold)
                         WalkerCard(
                             name = state.selectedWalker!!.name,
                             price = state.selectedWalker!!.priceHour,
                             rating = state.selectedWalker!!.rating ?: 5.0,
+                            imageURL = state.selectedWalker!!.photoUrl,
                             onClick = {}
                         )
                     } else {
@@ -244,7 +275,6 @@ fun RequestWalkScreen(
 
                     HorizontalDivider()
 
-                    // SECCIÓN MASCOTA
                     Text("¿A quién paseamos?", fontWeight = FontWeight.Bold)
                     if (state.myPets.isEmpty()) {
                         Text("No tienes mascotas registradas.", color = Color.Gray)
@@ -254,6 +284,7 @@ fun RequestWalkScreen(
                                 PetSelectionCard(
                                     pet = pet,
                                     isSelected = state.selectedPet?.id == pet.id,
+
                                     onClick = { viewModel.onPetSelected(pet) }
                                 )
                             }
@@ -381,7 +412,7 @@ fun AddressDropdown(
 fun PetSelectionCard(pet: Pet, isSelected: Boolean, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .size(width = 100.dp, height = 120.dp)
+            .size(width = 100.dp, height = 130.dp)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
@@ -393,14 +424,50 @@ fun PetSelectionCard(pet: Pet, isSelected: Boolean, onClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(Icons.Default.Pets, null, modifier = Modifier.size(32.dp), tint = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray)
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!pet.photoUrl.isNullOrBlank()) {
+                    coil3.compose.AsyncImage(
+                        model = pet.photoUrl,
+                        contentDescription = "Foto de ${pet.name}",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(12.dp)),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.Pets,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(pet.name, fontWeight = FontWeight.Bold, maxLines = 1)
+            Text(
+                pet.name,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                style = MaterialTheme.typography.bodySmall
+            )
+            if (pet.type != null) {
+                Text(
+                    pet.type,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
 
-// Funciones para DatePicker y TimePicker (Standard Android)
 fun showDatePicker(context: android.content.Context, onDateSelected: (Int, Int, Int) -> Unit) {
     val calendar = Calendar.getInstance()
     DatePickerDialog(

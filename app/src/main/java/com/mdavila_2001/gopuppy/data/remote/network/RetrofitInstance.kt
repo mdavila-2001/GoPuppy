@@ -27,7 +27,6 @@ object RetrofitInstance {
     var authToken: String? = null
         get() {
             if (field == null && appContext != null) {
-                // Intentar cargar desde SharedPreferences
                 val prefs = appContext!!.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 field = prefs.getString(KEY_TOKEN, null)
                 android.util.Log.d("RetrofitInstance", "Token recuperado de SharedPrefs: ${field?.take(30) ?: "NULL"}")
@@ -37,7 +36,6 @@ object RetrofitInstance {
         set(value) {
             field = value
             android.util.Log.d("RetrofitInstance", "Guardando token: ${value?.take(30) ?: "NULL"}")
-            // Guardar en SharedPreferences
             appContext?.let { context ->
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 val success = prefs.edit().putString(KEY_TOKEN, value).commit()
@@ -61,8 +59,6 @@ object RetrofitInstance {
     private val responseInterceptor = Interceptor { chain ->
         val request = chain.request()
         val response = chain.proceed(request)
-        
-        // Log detallado de la respuesta ANTES de que Gson la procese
         if (request.url.toString().contains("/walks")) {
             android.util.Log.d("RetrofitResponse", "========================================")
             android.util.Log.d("RetrofitResponse", "URL: ${request.url}")
@@ -70,14 +66,11 @@ object RetrofitInstance {
             android.util.Log.d("RetrofitResponse", "Response Code: ${response.code}")
             android.util.Log.d("RetrofitResponse", "Response Message: ${response.message}")
             android.util.Log.d("RetrofitResponse", "Content-Type: ${response.header("Content-Type")}")
-            
-            // Leer el body sin consumirlo
             val responseBody = response.peekBody(Long.MAX_VALUE)
             val bodyString = responseBody.string()
             android.util.Log.d("RetrofitResponse", "Body (primeros 1000 chars): ${bodyString.take(1000)}")
             android.util.Log.d("RetrofitResponse", "========================================")
         }
-        
         response
     }
 
@@ -92,8 +85,7 @@ object RetrofitInstance {
         .build()
 
     private val gson = GsonBuilder()
-        .setLenient() // Aceptar JSON no estricto
-        // Por defecto Gson NO serializa campos nulos, así que no llamamos .serializeNulls()
+        .setLenient()
         .create()
 
     val apiService: GoPuppyApiService by lazy {

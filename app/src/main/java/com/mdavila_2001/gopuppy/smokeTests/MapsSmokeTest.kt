@@ -16,7 +16,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun MapTestScreen(
     modifier: Modifier = Modifier
 ) {
-    // Coordenadas de Santa Cruz de la Sierra (Plaza 24 de Septiembre aprox)
     val santaCruz = LatLng(-17.7833, -63.1821)
 
     val cameraPositionState = rememberCameraPositionState {

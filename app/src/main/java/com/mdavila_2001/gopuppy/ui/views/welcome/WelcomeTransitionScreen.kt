@@ -25,7 +25,6 @@ import androidx.navigation.NavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import kotlinx.coroutines.delay
 
-/* CLASE COMPLETA COMENTADA - WelcomeTransitionScreen
 @Composable
 fun WelcomeTransitionScreen(
     navController: NavController,
@@ -51,7 +50,6 @@ fun WelcomeTransitionScreen(
             animationSpec = tween(durationMillis = 500)
         )
 
-        // Navegar a la pantalla principal según el rol
         val destination = if (isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
         navController.navigate(destination) {
             popUpTo(NavRoutes.WelcomeTransition.route) { inclusive = true }
@@ -102,4 +100,3 @@ fun WelcomeTransitionScreen(
         }
     }
 }
-*/

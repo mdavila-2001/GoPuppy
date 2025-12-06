@@ -1,5 +1,6 @@
 package com.mdavila_2001.gopuppy.ui.views.owner_home
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,17 +12,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,15 +53,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil3.compose.AsyncImage
+import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 import com.mdavila_2001.gopuppy.ui.NavRoutes
+import com.mdavila_2001.gopuppy.ui.components.global.StatusChip
 import com.mdavila_2001.gopuppy.ui.components.global.cards.PetCard
 import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
+import com.mdavila_2001.gopuppy.ui.components.global.dialogs.RatingDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import kotlinx.coroutines.launch
@@ -66,14 +83,27 @@ fun OwnerHomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsState()
-    
+    val context = LocalContext.current
+
     var showDeleteDialog by remember { mutableStateOf(false) }
     var petToDelete by remember { mutableStateOf<Pair<Int, String>?>(null) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showRatingDialog by remember { mutableStateOf(false) }
+    var walkToRate by remember { mutableStateOf<Walk?>(null) }
 
-    // Recargar mascotas cuando volvemos de otra pantalla
     LaunchedEffect(Unit) {
-        viewModel.loadPets()
+        viewModel.loadData()
+    }
+
+    LaunchedEffect(state.errorMessage, state.successMessage) {
+        state.errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.clearMessages()
+        }
+        state.successMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearMessages()
+        }
     }
 
     GoPuppyTheme(role = "owner") {
@@ -84,6 +114,7 @@ fun OwnerHomeScreen(
                     navController = navController,
                     isWalker = false,
                     userName = state.userName,
+                    userPhotoUrl = state.userPhotoUrl,
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()
@@ -143,7 +174,6 @@ fun OwnerHomeScreen(
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
                 ) {
-                    // Sección: Paseo Activo con botón de Nuevo Viaje
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -184,42 +214,76 @@ fun OwnerHomeScreen(
                     }
                     
                     Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Placeholder para paseo activo
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                shape = MaterialTheme.shapes.medium
-                            )
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+
+                    if (state.activeWalks.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                    shape = MaterialTheme.shapes.medium
+                                )
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "No hay paseos activos",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "No hay paseos activos",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Solicita un paseo para empezar",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    } else {
+                        state.activeWalks.forEach { walk ->
+                            ActiveWalkCard(
+                                walk = walk,
+                                onClick = {
+                                    navController.navigate(NavRoutes.WalkDetail.createRoute(walk.id, false))
+                                }
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Solicita un paseo para empezar",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                textAlign = TextAlign.Center
-                            )
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
-                    
+
+                    if (state.finishedWalks.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Text(
+                            text = "Califica tu experiencia",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        state.finishedWalks.forEach { walk ->
+                            FinishedWalkCard(
+                                walk = walk,
+                                onRateClick = {
+                                    walkToRate = walk
+                                    showRatingDialog = true
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Sección: Mis Mascotas
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -327,8 +391,7 @@ fun OwnerHomeScreen(
                 }
             }
         }
-        
-        // Diálogo de confirmación de eliminación
+
         if (showDeleteDialog && petToDelete != null) {
             androidx.compose.material3.AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
@@ -367,7 +430,6 @@ fun OwnerHomeScreen(
             )
         }
 
-        // Diálogo de confirmación de logout
         if (showLogoutDialog) {
             ConfirmDialog(
                 title = "Cerrar Sesión",
@@ -388,6 +450,22 @@ fun OwnerHomeScreen(
                 }
             )
         }
+
+        if (showRatingDialog && walkToRate != null) {
+            RatingDialog(
+                walkerName = walkToRate!!.walker.name,
+                petName = walkToRate!!.pet.name,
+                onSubmit = { rating, comment ->
+                    viewModel.submitReview(walkToRate!!.id, rating, comment)
+                    showRatingDialog = false
+                    walkToRate = null
+                },
+                onDismiss = {
+                    showRatingDialog = false
+                    walkToRate = null
+                }
+            )
+        }
     }
 }
 
@@ -398,3 +476,179 @@ fun OwnerHomeScreenPreview() {
         OwnerHomeScreen(navController = rememberNavController())
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ActiveWalkCard(
+    walk: Walk,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!walk.pet.photoUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = walk.pet.photoUrl,
+                        contentDescription = "Foto de ${walk.pet.name}",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.Pets,
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = walk.pet.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Paseador: ${walk.walker.name}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Icon(
+                        Icons.Default.AccessTime,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${walk.durationMinutes} min",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            StatusChip(status = walk.status)
+        }
+    }
+}
+
+@Composable
+fun FinishedWalkCard(
+    walk: Walk,
+    onRateClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!walk.pet.photoUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = walk.pet.photoUrl,
+                        contentDescription = "Foto de ${walk.pet.name}",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.Pets,
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = walk.pet.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Paseador: ${walk.walker.name}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "✅ Paseo completado",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color(0xFF4CAF50)
+                )
+            }
+
+            Button(
+                onClick = onRateClick,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFFB800)
+                ),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Icon(
+                    Icons.Default.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = Color.White
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    "Calificar",
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
+
+

@@ -25,16 +25,30 @@ fun StatusChip(
 ) {
     val isDark = isSystemInDarkTheme()
 
-    val displayStatus = status.lowercase()
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+    val displayStatus = when (status.lowercase()) {
+        "accepted" -> "Aceptado"
+        "pending" -> "Pendiente"
+        "scheduled" -> "Agendado"
+        "in_progress" -> "En Curso"
+        "started" -> "Iniciado"
+        "finished", "completed" -> "Finalizado"
+        "rejected", "cancelled" -> "Rechazado"
+        "aceptado" -> "Aceptado"
+        "pendiente" -> "Pendiente"
+        "agendado" -> "Agendado"
+        "en curso" -> "En Curso"
+        "iniciado" -> "Iniciado"
+        "finalizado" -> "Finalizado"
+        "rechazado" -> "Rechazado"
+        else -> status.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+    }
 
     val (bgColor, textColor) = when (status.lowercase()) {
-        "pendiente" -> Pair(StatusPendingBg, StatusPendingText)
-        "aceptado" -> Pair(StatusAcceptedBg, StatusAcceptedText)
-        "rechazado" -> Pair(StatusRejectedBg, StatusRejectedText)
-        "en curso" -> Pair(StatusInProgressBg, StatusInProgressText)
-
-        "finalizado" -> if (isDark) {
+        "pending", "pendiente" -> Pair(StatusPendingBg, StatusPendingText)
+        "accepted", "aceptado", "scheduled", "agendado" -> Pair(StatusAcceptedBg, StatusAcceptedText)
+        "rejected", "rechazado", "cancelled" -> Pair(StatusRejectedBg, StatusRejectedText)
+        "in_progress", "started", "en curso", "iniciado" -> Pair(StatusInProgressBg, StatusInProgressText)
+        "finished", "completed", "finalizado" -> if (isDark) {
             Pair(StatusFinishedBgDark, StatusFinishedTextDark)
         } else {
             Pair(StatusFinishedBgLight, StatusFinishedTextLight)
@@ -66,15 +80,20 @@ fun StatusChipLightPreview() {
         Column(
             modifier = Modifier.padding(8.dp)
         ) {
-            StatusChip(status = "Pendiente")
-            Spacer(modifier = Modifier.padding(8.dp))
-            StatusChip(status = "Aceptado")
-            Spacer(modifier = Modifier.padding(8.dp))
-            StatusChip(status = "Rechazado")
-            Spacer(modifier = Modifier.padding(8.dp))
-            StatusChip(status = "En curso")
-            Spacer(modifier = Modifier.padding(8.dp))
-            StatusChip(status = "Finalizado")
+            // Estados en inglés (como vienen de la API)
+            StatusChip(status = "pending")
+            Spacer(modifier = Modifier.padding(4.dp))
+            StatusChip(status = "accepted")
+            Spacer(modifier = Modifier.padding(4.dp))
+            StatusChip(status = "scheduled")
+            Spacer(modifier = Modifier.padding(4.dp))
+            StatusChip(status = "in_progress")
+            Spacer(modifier = Modifier.padding(4.dp))
+            StatusChip(status = "started")
+            Spacer(modifier = Modifier.padding(4.dp))
+            StatusChip(status = "finished")
+            Spacer(modifier = Modifier.padding(4.dp))
+            StatusChip(status = "rejected")
         }
     }
 }

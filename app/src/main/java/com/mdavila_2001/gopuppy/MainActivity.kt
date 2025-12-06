@@ -19,32 +19,20 @@ import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Handler global de excepciones para debugging
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             android.util.Log.e("CRASH", "════════════════════════════════════════")
             android.util.Log.e("CRASH", "App crashed on thread: ${thread.name}")
             android.util.Log.e("CRASH", "Exception: ${throwable.message}")
             android.util.Log.e("CRASH", "Stack trace:", throwable)
             android.util.Log.e("CRASH", "════════════════════════════════════════")
-            
-            // Re-throw para que el sistema maneje el crash normalmente
             throw throwable
         }
-        
-        // Inicializar RetrofitInstance con el contexto de la app
         RetrofitInstance.init(applicationContext)
-        
         enableEdgeToEdge()
         setContent {
             GoPuppyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    /*Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )*/
                     NavigationApp(modifier = Modifier.padding(innerPadding))
-                    //MapTestScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

@@ -26,10 +26,11 @@ import androidx.navigation.NavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.components.global.cards.WalkCard
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
-import com.mdavila_2001.gopuppy.ui.components.walker.AvailabilityCard
 import com.mdavila_2001.gopuppy.ui.components.walker.EmptyStateMessage
 import com.mdavila_2001.gopuppy.ui.components.walker.SectionHeader
 import com.mdavila_2001.gopuppy.ui.components.walker.WalkerRequestActionCard
+import com.mdavila_2001.gopuppy.ui.components.walker.WalkerStatusHeader
+import com.mdavila_2001.gopuppy.ui.components.walker.WalkerWalkCard
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 import kotlinx.coroutines.launch
 
@@ -69,6 +70,7 @@ fun WalkerHomeScreen(
                     navController = navController,
                     isWalker = true,
                     userName = state.userName,
+                    userPhotoUrl = state.userPhotoUrl,
                     onCloseDrawer = { scope.launch { drawerState.close() } },
                     onLogoutClick = {
                         showLogoutDialog = true
@@ -99,10 +101,11 @@ fun WalkerHomeScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        AvailabilityCard(
+                        WalkerStatusHeader(
                             isAvailable = state.isAvailable,
                             onToggle = { isChecked ->
                                 if (isChecked) {
+                                    // Verificar si ya tenemos permisos
                                     val hasFine = ContextCompat.checkSelfPermission(
                                         context,
                                         Manifest.permission.ACCESS_FINE_LOCATION
@@ -113,27 +116,19 @@ fun WalkerHomeScreen(
                                     ) == PackageManager.PERMISSION_GRANTED
 
                                     if (hasFine || hasCoarse) {
+                                        // Ya tenemos permisos, activar directamente
                                         viewModel.toggleAvailability(true)
                                     } else {
-                                        // No tiene permiso, lo pedimos
-                                        val permissionsToRequest = mutableListOf(
-                                            Manifest.permission.ACCESS_FINE_LOCATION,
-                                            Manifest.permission.ACCESS_COARSE_LOCATION
+                                        // Solicitar permisos
+                                        permissionLauncher.launch(
+                                            arrayOf(
+                                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                                Manifest.permission.ACCESS_COARSE_LOCATION
+                                            )
                                         )
-                                        
-                                        // Android 13+ requiere POST_NOTIFICATIONS
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
-                                        }
-                                        
-                                        // Android 14+ requiere FOREGROUND_SERVICE_LOCATION
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                            permissionsToRequest.add("android.permission.FOREGROUND_SERVICE_LOCATION")
-                                        }
-                                        
-                                        permissionLauncher.launch(permissionsToRequest.toTypedArray())
                                     }
                                 } else {
+                                    // Desactivar disponibilidad
                                     viewModel.toggleAvailability(false)
                                 }
                             },
@@ -165,16 +160,17 @@ fun WalkerHomeScreen(
                         item { EmptyStateMessage("Tu agenda está libre por ahora.") }
                     } else {
                         items(state.upcomingWalks) { walk ->
-                            WalkCard(
-                                petName = walk.pet.name,
-                                date = walk.scheduledAt,
-                                time = "${walk.durationMinutes} min",
-                                duration = "",
-                                status = walk.status,
-                                price = null,
-                                onClick = {
+                            WalkerWalkCard(
+                                walk = walk,
+                                onStartWalk = {
+                                    viewModel.startWalk(walk.id)
+                                },
+                                onEndWalk = {
+                                    viewModel.endWalk(walk.id)
+                                },
+                                onViewDetails = {
                                     navController.navigate(
-                                        NavRoutes.WalkDetail.createRoute(walk.id)
+                                        NavRoutes.WalkDetail.createRoute(walk.id, true)
                                     )
                                 }
                             )
@@ -186,9 +182,8 @@ fun WalkerHomeScreen(
             }
         }
 
-        // Diálogo de confirmación de logout
         if (showLogoutDialog) {
-            androidx.compose.material3.AlertDialog(
+            AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },
                 title = { Text("Cerrar Sesión") },
                 text = { Text("¿Estás seguro de que deseas cerrar sesión?") },

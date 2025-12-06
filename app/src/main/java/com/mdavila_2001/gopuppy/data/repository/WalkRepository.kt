@@ -4,6 +4,7 @@ import android.util.Log
 import com.mdavila_2001.gopuppy.data.remote.models.walk.ReviewDTO
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkDTO
+import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkReview
 import com.mdavila_2001.gopuppy.data.remote.network.RetrofitInstance
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -32,32 +33,11 @@ class WalkRepository {
 
     suspend fun createWalk(dto: WalkDTO): Result<Walk> {
         return try {
-            Log.d("WalkRepo", "=== CREANDO PASEO ===")
-            Log.d("WalkRepo", "petId: ${dto.petId}")
-            Log.d("WalkRepo", "scheduledAt: ${dto.scheduledAt}")
-            Log.d("WalkRepo", "durationMinutes: ${dto.durationMinutes}")
-            Log.d("WalkRepo", "walkerId: ${dto.walkerId}")
-            Log.d("WalkRepo", "addressId: ${dto.addressId}")
-            Log.d("WalkRepo", "notes: ${dto.notes}")
-            
             val response = api.createWalk(dto)
-            
-            Log.d("WalkRepo", "Código de respuesta: ${response.code()}")
-            Log.d("WalkRepo", "Es exitoso: ${response.isSuccessful}")
-            Log.d("WalkRepo", "Headers: ${response.headers()}")
-            
             if (response.isSuccessful && response.body() != null) {
-                Log.d("WalkRepo", "✅ Paseo creado exitosamente: ${response.body()!!.id}")
                 Result.success(response.body()!!)
             } else {
                 val errorBody = response.errorBody()?.string()
-                val errorBodyPreview = errorBody?.take(500) ?: "NULL"
-                Log.e("WalkRepo", "❌ Error Body (primeros 500 chars): $errorBodyPreview")
-                Log.e("WalkRepo", "❌ Response Code: ${response.code()}")
-                Log.e("WalkRepo", "❌ Response Message: ${response.message()}")
-                Log.e("WalkRepo", "❌ Content-Type: ${response.headers()["Content-Type"]}")
-                
-                // Extraer mensaje útil si el error body es texto plano
                 val cleanError = when {
                     errorBody?.contains("<!DOCTYPE", ignoreCase = true) == true -> 
                         "El servidor devolvió HTML. Revisa la URL del API"
@@ -67,7 +47,6 @@ class WalkRepository {
                         "El backend requiere una dirección (address_id)"
                     else -> errorBody
                 }
-                
                 val errorMsg = when (response.code()) {
                     400 -> "Datos inválidos: $cleanError"
                     401 -> "No autorizado. Inicia sesión nuevamente"
@@ -129,6 +108,19 @@ class WalkRepository {
 
             if (response.isSuccessful) Result.success(true)
             else Result.failure(Exception("Error enviando review"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getMyReviews(): Result<List<WalkReview>> {
+        return try {
+            val response = api.getMyReviews()
+            if (response.isSuccessful) {
+                Result.success(response.body() ?: emptyList())
+            } else {
+                Result.failure(Exception("Error obteniendo reviews"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

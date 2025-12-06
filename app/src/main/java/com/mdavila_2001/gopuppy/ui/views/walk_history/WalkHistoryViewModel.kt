@@ -13,10 +13,12 @@ import kotlinx.coroutines.launch
 
 data class WalkHistoryState(
     val walks: List<Walk> = emptyList(),
+    val reviewedWalkIds: Set<Int> = emptySet(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val successMessage: String? = null,
     val searchQuery: String = "",
-    val selectedFilter: String = "Todos", // Todos, Completados, Cancelados, etc.
+    val selectedFilter: String = "Todos",
     val userName: String = "Usuario"
 )
 
@@ -44,10 +46,16 @@ class WalkHistoryViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             
-            walkRepository.getHistory().fold(
+            val historyResult = walkRepository.getHistory()
+            val reviewsResult = walkRepository.getMyReviews()
+
+            val reviewedIds = reviewsResult.getOrDefault(emptyList()).map { it.walkId }.toSet()
+
+            historyResult.fold(
                 onSuccess = { walks ->
                     _state.value = _state.value.copy(
                         walks = walks,
+                        reviewedWalkIds = reviewedIds,
                         isLoading = false
                     )
                 },
@@ -75,7 +83,6 @@ class WalkHistoryViewModel(application: Application) : AndroidViewModel(applicat
         val filter = _state.value.selectedFilter
 
         return walks.filter { walk ->
-            // Filtrar por búsqueda
             val matchesSearch = if (query.isBlank()) {
                 true
             } else {
@@ -83,10 +90,9 @@ class WalkHistoryViewModel(application: Application) : AndroidViewModel(applicat
                 walk.walker.name.lowercase().contains(query)
             }
 
-            // Filtrar por estado
             val matchesFilter = when (filter) {
                 "Todos" -> true
-                "Completados" -> walk.status == "completed"
+                "Completados" -> walk.status == "finished"
                 "Cancelados" -> walk.status == "cancelled"
                 "En curso" -> walk.status == "in_progress"
                 "Pendientes" -> walk.status == "pending"
@@ -97,8 +103,37 @@ class WalkHistoryViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
+    fun hasReview(walkId: Int): Boolean {
+        return walkId in _state.value.reviewedWalkIds
+    }
+
     fun clearError() {
         _state.value = _state.value.copy(errorMessage = null)
+    }
+
+    fun clearMessages() {
+        _state.value = _state.value.copy(errorMessage = null, successMessage = null)
+    }
+
+    fun submitReview(walkId: Int, rating: Int, comment: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
+
+            walkRepository.sendReview(walkId, rating, comment)
+                .onSuccess {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        successMessage = "¡Gracias por tu calificación!"
+                    )
+                    loadWalkHistory()
+                }
+                .onFailure { e ->
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = "Error al enviar calificación: ${e.message}"
+                    )
+                }
+        }
     }
 
     fun logout(onLogoutComplete: () -> Unit) {

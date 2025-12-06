@@ -136,6 +136,9 @@ fun WalkDetailScreen(
                     userName = state.walk?.let { 
                         if (isWalker) it.walker.name else it.owner.name 
                     } ?: if (isWalker) "Paseador" else "Dueño",
+                    userPhotoUrl = state.walk?.let {
+                        if (isWalker) it.walker.photoUrl else it.owner.photoUrl
+                    },
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()
@@ -199,9 +202,14 @@ fun WalkDetailScreen(
 
                         PetInfoSection(
                             petName = walk.pet.name,
+                            petType = walk.pet.type,
                             petPhoto = walk.pet.photoUrl,
                             ownerName = walk.owner.name,
-                            notes = walk.notes
+                            ownerPhoto = walk.owner.photoUrl,
+                            notes = walk.notes,
+                            onContactClick = {
+                                // TODO: Implementar contacto con el dueño
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))

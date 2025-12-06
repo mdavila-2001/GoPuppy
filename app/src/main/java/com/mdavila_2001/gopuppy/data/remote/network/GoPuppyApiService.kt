@@ -12,6 +12,7 @@ import com.mdavila_2001.gopuppy.data.remote.models.pet.PetDTO
 import com.mdavila_2001.gopuppy.data.remote.models.walk.ReviewDTO
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkDTO
+import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkReview
 import com.mdavila_2001.gopuppy.data.remote.models.walker.Availability
 import com.mdavila_2001.gopuppy.data.remote.models.walker.Location
 import com.mdavila_2001.gopuppy.data.remote.models.walker.Walker
@@ -98,6 +99,9 @@ interface GoPuppyApiService {
         @Path("id") id: Int,
         @Body review: ReviewDTO
     ): Response<Void>
+
+    @GET("reviews")
+    suspend fun getMyReviews(): Response<List<WalkReview>>
 
     @Multipart
     @POST("owners/photo")

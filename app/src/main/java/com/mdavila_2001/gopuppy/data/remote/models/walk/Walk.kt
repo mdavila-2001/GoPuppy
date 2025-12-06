@@ -32,5 +32,16 @@ data class Walk (
     @SerializedName("walker")
     val walker: Walker,
     @SerializedName("address")
-    val address: Address
+    val address: Address,
+    @SerializedName("review")
+    val review: Review? = null
+)
+
+data class Review(
+    @SerializedName("id")
+    val id: Int? = null,
+    @SerializedName("rating")
+    val rating: Int? = null,
+    @SerializedName("comment")
+    val comment: String? = null
 )
