@@ -84,6 +84,10 @@ fun DrawerMenu(
             icon = Icons.Default.Home,
             title = "Inicio",
             onClick = {
+                val homeRoute = if (isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
+                navController.navigate(homeRoute) {
+                    popUpTo(homeRoute) { inclusive = true }
+                }
                 onCloseDrawer()
             }
         )
