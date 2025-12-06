@@ -14,7 +14,9 @@ import kotlinx.coroutines.launch
 data class AddressListUiState(
     val isLoading: Boolean = false,
     val addresses: List<Address> = emptyList(),
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val userName: String = "Usuario",
+    val userPhotoUrl: String? = null
 )
 
 class AddressListViewModel(application: Application) : AndroidViewModel(application) {
@@ -25,7 +27,19 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
     val uiState: StateFlow<AddressListUiState> = _uiState.asStateFlow()
 
     init {
+        loadUserProfile()
         loadAddresses()
+    }
+
+    private fun loadUserProfile() {
+        viewModelScope.launch {
+            authRepository.getProfile().onSuccess { userInfo ->
+                _uiState.value = _uiState.value.copy(
+                    userName = userInfo.name,
+                    userPhotoUrl = userInfo.photoUrl
+                )
+            }
+        }
     }
 
     fun loadAddresses() {

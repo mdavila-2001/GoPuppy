@@ -14,7 +14,6 @@ data class WalkerProfileState(
     val email: String = "",
     val bio: String = "",
     val pricePerHour: String = "",
-    val experience: String = "",
     val photoUrl: String? = null,
     val rating: Double = 0.0,
     val totalReviews: Int = 0,
@@ -46,7 +45,6 @@ class WalkerProfileViewModel(application: Application) : AndroidViewModel(applic
                         // TODO: Agregar más campos cuando estén disponibles en la API
                         bio = "Soy una apasionada de los animales con más de 5 años de experiencia cuidando y paseando perritos de todas las razas y tamaños. ¡Tu mejor amigo estará en buenas manos!",
                         pricePerHour = "$15",
-                        experience = "5 años",
                         rating = 4.8,
                         totalReviews = 0,
                         isLoading = false
@@ -62,7 +60,7 @@ class WalkerProfileViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    fun updateProfile(name: String, email: String, bio: String, pricePerHour: String, experience: String) {
+    fun updateProfile(name: String, email: String, bio: String, pricePerHour: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             
@@ -73,7 +71,6 @@ class WalkerProfileViewModel(application: Application) : AndroidViewModel(applic
                 email = email,
                 bio = bio,
                 pricePerHour = pricePerHour,
-                experience = experience,
                 isLoading = false,
                 successMessage = "Cambios guardados exitosamente"
             )

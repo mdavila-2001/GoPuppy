@@ -74,6 +74,8 @@ fun AddressListScreen(
                 DrawerMenu(
                     navController = navController,
                     isWalker = false,
+                    userName = state.userName,
+                    userPhotoUrl = state.userPhotoUrl,
                     onCloseDrawer = { scope.launch { drawerState.close() } },
                     onLogoutClick = {
                         showLogoutDialog = true

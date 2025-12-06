@@ -76,6 +76,7 @@ sealed class NavRoutes(val route: String, val arguments: List<NamedNavArgument> 
 
     object OwnerProfile : NavRoutes("owner_profile")
     object WalkerProfile : NavRoutes("walker_profile")
+    object WalkerReviews : NavRoutes("walker_reviews")
     object WalkHistory : NavRoutes("walk_history")
     object WelcomeTransition : NavRoutes("welcome_transition")
 }

@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -160,6 +161,17 @@ fun DrawerMenu(
                 onCloseDrawer()
             }
         )
+        
+        if (isWalker) {
+            DrawerMenuItem(
+                icon = Icons.Default.Star,
+                title = "Mis Calificaciones",
+                onClick = {
+                    navController.navigate(NavRoutes.WalkerReviews.route)
+                    onCloseDrawer()
+                }
+            )
+        }
         
         if (!isWalker) {
             DrawerMenuItem(

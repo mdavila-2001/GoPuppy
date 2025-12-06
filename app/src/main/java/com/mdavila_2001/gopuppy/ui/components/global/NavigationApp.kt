@@ -112,6 +112,9 @@ fun NavigationApp(modifier: Modifier) {
         composable(NavRoutes.WalkerProfile.route) {
             com.mdavila_2001.gopuppy.ui.views.walker_profile.WalkerProfileScreen(navController)
         }
+        composable(NavRoutes.WalkerReviews.route) {
+            com.mdavila_2001.gopuppy.ui.views.walker_reviews.WalkerReviewsScreen(navController)
+        }
         composable(NavRoutes.WalkHistory.route) {
             com.mdavila_2001.gopuppy.ui.views.walk_history.WalkHistoryScreen(navController)
         }

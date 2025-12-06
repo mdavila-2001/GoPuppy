@@ -63,6 +63,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
+import com.mdavila_2001.gopuppy.ui.NavRoutes
 import com.mdavila_2001.gopuppy.ui.components.global.AppBar
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.DangerButton
@@ -88,7 +89,6 @@ fun WalkerProfileScreen(
     var email by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("") }
     var pricePerHour by remember { mutableStateOf("") }
-    var experience by remember { mutableStateOf("") }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Estado para la foto de perfil
@@ -103,12 +103,11 @@ fun WalkerProfileScreen(
     }
 
     // Sincronizar con el estado del ViewModel
-    LaunchedEffect(state.name, state.email, state.bio, state.pricePerHour, state.experience, state.photoUrl) {
+    LaunchedEffect(state.name, state.email, state.bio, state.pricePerHour, state.photoUrl) {
         name = state.name
         email = state.email
         bio = state.bio
         pricePerHour = state.pricePerHour
-        experience = state.experience
         currentPhotoUrl = state.photoUrl
     }
 
@@ -286,50 +285,129 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Tarifa por hora y Experiencia
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Tarifa por hora",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                    // Tarifa por hora
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Tarifa por hora",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        OutlinedTextField(
+                            value = pricePerHour,
+                            onValueChange = { pricePerHour = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            placeholder = { Text("$15") },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                             )
-                            OutlinedTextField(
-                                value = pricePerHour,
-                                onValueChange = { pricePerHour = it },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                placeholder = { Text("$15") },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                                )
-                            )
-                        }
+                        )
+                    }
 
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Experiencia",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                            OutlinedTextField(
-                                value = experience,
-                                onValueChange = { experience = it },
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Mis Calificaciones
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                placeholder = { Text("5 años") },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Mis Calificaciones",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "${state.rating}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = "Rating",
+                                        tint = Color(0xFFFFB800),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // Ejemplo de reseña
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            text = "Juan Pérez",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            repeat(5) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Star,
+                                                    contentDescription = null,
+                                                    tint = Color(0xFFFFB800),
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Excelente servicio! Cami es muy profesional y cariñosa con los perritos. La mejor paseadora que hemos tenido.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                        maxLines = 2
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // Botón Ver todas las reseñas
+                            OutlinedButton(
+                                text = "Ver todas las reseñas",
+                                onClick = { 
+                                    navController.navigate(NavRoutes.WalkerReviews.route)
+                                },
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
@@ -363,7 +441,7 @@ fun WalkerProfileScreen(
                     Button(
                         text = "Guardar Cambios",
                         onClick = {
-                            viewModel.updateProfile(name, email, bio, pricePerHour, experience)
+                            viewModel.updateProfile(name, email, bio, pricePerHour)
                         },
                         isLoading = state.isLoading,
                         modifier = Modifier.fillMaxWidth()
