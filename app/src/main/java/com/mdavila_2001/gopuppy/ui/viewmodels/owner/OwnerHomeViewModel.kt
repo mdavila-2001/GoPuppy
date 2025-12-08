@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.views.owner_home
+package com.mdavila_2001.gopuppy.ui.viewmodels.owner
 
 import android.app.Application
 import android.util.Log

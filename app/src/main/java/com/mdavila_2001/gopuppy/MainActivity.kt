@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.mdavila_2001.gopuppy.data.remote.network.RetrofitInstance
-import com.mdavila_2001.gopuppy.smokeTests.MapTestScreen
 import com.mdavila_2001.gopuppy.ui.components.global.NavigationApp
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
 

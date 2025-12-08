@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.data.remote.models.walk
+package com.mdavila_2001.gopuppy.data.remote.models.review
 
 import com.google.gson.annotations.SerializedName
 

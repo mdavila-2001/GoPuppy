@@ -43,8 +43,7 @@ fun PetInfoSection(
     petPhoto: String?,
     ownerName: String,
     ownerPhoto: String? = null,
-    notes: String?,
-    onContactClick: (() -> Unit)? = null
+    notes: String?
 ) {
     Card(
         modifier = Modifier
@@ -182,20 +181,6 @@ fun PetInfoSection(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
-                    }
-                }
-
-                // Botón contactar
-                if (onContactClick != null) {
-                    Button(
-                        onClick = onContactClick,
-                        shape = RoundedCornerShape(20.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Text("Contactar", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }

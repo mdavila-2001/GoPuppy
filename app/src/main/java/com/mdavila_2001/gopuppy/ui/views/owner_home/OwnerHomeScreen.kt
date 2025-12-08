@@ -72,6 +72,7 @@ import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.dialogs.RatingDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
+import com.mdavila_2001.gopuppy.ui.viewmodels.owner.OwnerHomeViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

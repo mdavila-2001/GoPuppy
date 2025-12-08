@@ -51,7 +51,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
 import com.mdavila_2001.gopuppy.ui.components.global.inputs.Input
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
-import com.mdavila_2001.gopuppy.ui.viewmodels.AddressFormViewModel
+import com.mdavila_2001.gopuppy.ui.viewmodels.address.AddressFormViewModel
 import com.mdavila_2001.gopuppy.utils.LocationHelper
 import kotlinx.coroutines.launch
 

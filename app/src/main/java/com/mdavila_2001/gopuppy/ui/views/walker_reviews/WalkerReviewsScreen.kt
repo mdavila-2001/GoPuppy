@@ -18,9 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,7 +27,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
@@ -61,18 +58,20 @@ import coil3.compose.AsyncImage
 import com.mdavila_2001.gopuppy.ui.components.global.AppBar
 import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
+import com.mdavila_2001.gopuppy.ui.components.walker.EmptyStateMessage
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
+import com.mdavila_2001.gopuppy.ui.viewmodels.walker.WalkerReviewsViewModel
+import java.util.Locale
 import kotlinx.coroutines.launch
 
-data class Review(
+data class ReviewUiModel(
     val id: Int,
     val userName: String,
     val userPhotoUrl: String?,
     val petName: String,
     val rating: Int,
     val comment: String,
-    val timeAgo: String,
-    val likes: Int
+    val timeAgo: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,7 +140,6 @@ fun WalkerReviewsScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Header con rating general
                         item {
                             RatingHeaderCard(
                                 averageRating = state.averageRating,
@@ -186,12 +184,15 @@ fun WalkerReviewsScreen(
                             }
                         }
 
-                        // Lista de reseñas
-                        items(state.reviews) { review ->
+                        val filteredReviews = when (selectedFilter) {
+                            "Mejor calificación" -> state.reviews.sortedByDescending { it.rating }
+                            "Peor calificación" -> state.reviews.sortedBy { it.rating }
+                            else -> state.reviews
+                        }
+                        items(filteredReviews) { review ->
                             ReviewCard(review = review)
                         }
 
-                        // Empty state
                         if (state.reviews.isEmpty()) {
                             item {
                                 Box(
@@ -200,10 +201,8 @@ fun WalkerReviewsScreen(
                                         .padding(vertical = 48.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(
-                                        text = "Aún no tienes calificaciones",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    EmptyStateMessage(
+                                        "Aún no tienes calificaciones"
                                     )
                                 }
                             }
@@ -252,7 +251,7 @@ private fun RatingHeaderCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = String.format("%.1f", averageRating),
+                text = String.format(Locale.getDefault(), "%.1f", averageRating),
                 style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -324,7 +323,7 @@ private fun RatingHeaderCard(
 }
 
 @Composable
-private fun ReviewCard(review: Review) {
+private fun ReviewCard(review: ReviewUiModel) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -342,8 +341,8 @@ private fun ReviewCard(review: Review) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Avatar
-                if (!review.userPhotoUrl.isNullOrBlank()) {
+                val ownerInitial = review.userName.firstOrNull()?.toString()?.uppercase() ?: "?"
+                if (!review.userPhotoUrl.isNullOrBlank() && review.userPhotoUrl != "null") {
                     AsyncImage(
                         model = review.userPhotoUrl,
                         contentDescription = "Foto de ${review.userName}",
@@ -361,7 +360,7 @@ private fun ReviewCard(review: Review) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = review.userName.take(1).uppercase(),
+                            text = ownerInitial,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -387,8 +386,6 @@ private fun ReviewCard(review: Review) {
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-
-            // Rating
             Row(
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
@@ -404,33 +401,12 @@ private fun ReviewCard(review: Review) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Comentario
             Text(
                 text = review.comment,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 lineHeight = 20.sp
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Likes
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ThumbUp,
-                    contentDescription = "Likes",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
-                )
-                Text(
-                    text = "${review.likes}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
         }
     }
 }

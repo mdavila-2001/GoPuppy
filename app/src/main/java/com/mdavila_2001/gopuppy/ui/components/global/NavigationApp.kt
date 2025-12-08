@@ -20,9 +20,6 @@ import com.mdavila_2001.gopuppy.ui.views.owner_home.OwnerHomeScreen
 import com.mdavila_2001.gopuppy.ui.views.pet_form.PetFormScreen
 import com.mdavila_2001.gopuppy.ui.views.requestwalk.RequestWalkScreen
 import com.mdavila_2001.gopuppy.ui.views.walker_home.WalkerHomeScreen
-import com.mdavila_2001.gopuppy.ui.views.walker_home.WalkerHomeViewModel
-import com.mdavila_2001.gopuppy.ui.views.walker_search.WalkerSearchScreen
-import com.mdavila_2001.gopuppy.ui.views.walker_search.WalkerSearchViewModel
 
 @Composable
 fun NavigationApp(modifier: Modifier) {

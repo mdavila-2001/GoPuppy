@@ -1,8 +1,7 @@
-package com.mdavila_2001.gopuppy.ui.views.login
+package com.mdavila_2001.gopuppy.ui.viewmodels.auth
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow

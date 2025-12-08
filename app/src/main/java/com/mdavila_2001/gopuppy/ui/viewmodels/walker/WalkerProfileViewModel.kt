@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.views.walker_profile
+package com.mdavila_2001.gopuppy.ui.viewmodels.walker
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

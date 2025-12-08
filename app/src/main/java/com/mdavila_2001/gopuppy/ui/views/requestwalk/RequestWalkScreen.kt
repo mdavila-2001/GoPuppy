@@ -63,7 +63,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -79,6 +78,7 @@ import com.mdavila_2001.gopuppy.ui.components.global.buttons.Button
 import com.mdavila_2001.gopuppy.ui.components.global.cards.WalkerCard
 import com.mdavila_2001.gopuppy.ui.components.global.inputs.Input
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
+import com.mdavila_2001.gopuppy.ui.viewmodels.walk.RequestWalkViewModel
 import java.util.Calendar
 import java.util.Locale
 
