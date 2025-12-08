@@ -3,7 +3,7 @@ package com.mdavila_2001.gopuppy.ui.viewmodels.walker
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkReview
+import com.mdavila_2001.gopuppy.data.remote.models.review.Review
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository
 import com.mdavila_2001.gopuppy.data.repository.WalkRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ data class WalkerProfileState(
     val photoUrl: String? = null,
     val rating: Double = 0.0,
     val totalReviews: Int = 0,
-    val firstReview: WalkReview? = null,
+    val firstReview: Review? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val successMessage: String? = null
