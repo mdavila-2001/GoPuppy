@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mdavila_2001.gopuppy.R
 import com.mdavila_2001.gopuppy.ui.NavRoutes
+import com.mdavila_2001.gopuppy.ui.viewmodels.SplashViewModel
 import kotlinx.coroutines.delay
 
 @Composable

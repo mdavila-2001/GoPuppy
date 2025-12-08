@@ -2,7 +2,6 @@ package com.mdavila_2001.gopuppy.ui.views.walker_home
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +23,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mdavila_2001.gopuppy.ui.NavRoutes
-import com.mdavila_2001.gopuppy.ui.components.global.cards.WalkCard
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.components.walker.EmptyStateMessage
 import com.mdavila_2001.gopuppy.ui.components.walker.SectionHeader
@@ -32,6 +30,7 @@ import com.mdavila_2001.gopuppy.ui.components.walker.WalkerRequestActionCard
 import com.mdavila_2001.gopuppy.ui.components.walker.WalkerStatusHeader
 import com.mdavila_2001.gopuppy.ui.components.walker.WalkerWalkCard
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
+import com.mdavila_2001.gopuppy.ui.viewmodels.walker.WalkerHomeViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -9,10 +9,10 @@ import com.mdavila_2001.gopuppy.data.remote.models.auth.signup.OwnerSignupDTO
 import com.mdavila_2001.gopuppy.data.remote.models.auth.signup.WalkerSignupDTO
 import com.mdavila_2001.gopuppy.data.remote.models.pet.Pet
 import com.mdavila_2001.gopuppy.data.remote.models.pet.PetDTO
-import com.mdavila_2001.gopuppy.data.remote.models.walk.ReviewDTO
+import com.mdavila_2001.gopuppy.data.remote.models.review.ReviewDTO
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkDTO
-import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkReview
+import com.mdavila_2001.gopuppy.data.remote.models.review.Review
 import com.mdavila_2001.gopuppy.data.remote.models.walker.Availability
 import com.mdavila_2001.gopuppy.data.remote.models.walker.Location
 import com.mdavila_2001.gopuppy.data.remote.models.walker.Walker
@@ -101,7 +101,7 @@ interface GoPuppyApiService {
     ): Response<Void>
 
     @GET("reviews")
-    suspend fun getMyReviews(): Response<List<WalkReview>>
+    suspend fun getMyReviews(): Response<List<Review>>
 
     @Multipart
     @POST("owners/photo")

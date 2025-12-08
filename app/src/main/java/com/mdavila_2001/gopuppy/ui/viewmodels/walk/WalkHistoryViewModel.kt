@@ -1,7 +1,9 @@
-package com.mdavila_2001.gopuppy.ui.views.walk_history
+package com.mdavila_2001.gopuppy.ui.viewmodels.walk
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository
@@ -146,8 +148,8 @@ class WalkHistoryViewModel(application: Application) : AndroidViewModel(applicat
 
 class WalkHistoryViewModelFactory(
     private val application: Application
-) : androidx.lifecycle.ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WalkHistoryViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return WalkHistoryViewModel(application) as T

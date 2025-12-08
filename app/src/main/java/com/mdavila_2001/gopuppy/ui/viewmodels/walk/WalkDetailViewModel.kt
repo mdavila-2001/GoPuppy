@@ -1,8 +1,7 @@
-package com.mdavila_2001.gopuppy.ui.views.walk_detail
+package com.mdavila_2001.gopuppy.ui.viewmodels.walk
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository

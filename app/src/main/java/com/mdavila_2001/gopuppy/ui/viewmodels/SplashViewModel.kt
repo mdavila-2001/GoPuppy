@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.views.splash
+package com.mdavila_2001.gopuppy.ui.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

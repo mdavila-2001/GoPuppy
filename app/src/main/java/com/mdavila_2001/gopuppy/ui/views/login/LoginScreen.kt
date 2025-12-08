@@ -42,6 +42,7 @@ import com.mdavila_2001.gopuppy.ui.components.global.buttons.OutlinedButton
 import com.mdavila_2001.gopuppy.ui.components.global.inputs.Input
 import com.mdavila_2001.gopuppy.ui.components.global.inputs.PasswordInput
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
+import com.mdavila_2001.gopuppy.ui.viewmodels.auth.LoginViewModel
 
 @Composable
 fun LoginScreen(

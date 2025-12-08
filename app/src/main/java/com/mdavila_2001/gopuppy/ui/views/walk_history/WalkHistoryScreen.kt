@@ -1,5 +1,6 @@
 package com.mdavila_2001.gopuppy.ui.views.walk_history
 
+import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,7 +11,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +29,8 @@ import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.dialogs.RatingDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
+import com.mdavila_2001.gopuppy.ui.viewmodels.walk.WalkHistoryViewModel
+import com.mdavila_2001.gopuppy.ui.viewmodels.walk.WalkHistoryViewModelFactory
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,7 +41,7 @@ fun WalkHistoryScreen(
     navController: NavController,
     viewModel: WalkHistoryViewModel = viewModel(
         factory = WalkHistoryViewModelFactory(
-            LocalContext.current.applicationContext as android.app.Application
+            LocalContext.current.applicationContext as Application
         )
     )
 ) {

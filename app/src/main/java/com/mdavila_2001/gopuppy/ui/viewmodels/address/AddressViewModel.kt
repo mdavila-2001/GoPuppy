@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.viewmodels
+package com.mdavila_2001.gopuppy.ui.viewmodels.address
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

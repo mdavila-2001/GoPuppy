@@ -44,7 +44,7 @@ import com.mdavila_2001.gopuppy.ui.components.address.EmptyAddressState
 import com.mdavila_2001.gopuppy.ui.components.global.dialogs.ConfirmDialog
 import com.mdavila_2001.gopuppy.ui.components.global.drawer.DrawerMenu
 import com.mdavila_2001.gopuppy.ui.theme.GoPuppyTheme
-import com.mdavila_2001.gopuppy.ui.viewmodels.AddressListViewModel
+import com.mdavila_2001.gopuppy.ui.viewmodels.address.AddressListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

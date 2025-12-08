@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.views.requestwalk
+package com.mdavila_2001.gopuppy.ui.viewmodels.walk
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

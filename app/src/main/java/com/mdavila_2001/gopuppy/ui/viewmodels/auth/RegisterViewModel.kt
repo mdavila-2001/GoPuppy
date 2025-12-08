@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.views.register
+package com.mdavila_2001.gopuppy.ui.viewmodels.auth
 
 import android.app.Application
 import android.util.Log

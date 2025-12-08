@@ -1,10 +1,10 @@
 package com.mdavila_2001.gopuppy.data.repository
 
 import android.util.Log
-import com.mdavila_2001.gopuppy.data.remote.models.walk.ReviewDTO
+import com.mdavila_2001.gopuppy.data.remote.models.review.ReviewDTO
 import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkDTO
-import com.mdavila_2001.gopuppy.data.remote.models.walk.WalkReview
+import com.mdavila_2001.gopuppy.data.remote.models.review.Review
 import com.mdavila_2001.gopuppy.data.remote.network.RetrofitInstance
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -113,7 +113,7 @@ class WalkRepository {
         }
     }
 
-    suspend fun getMyReviews(): Result<List<WalkReview>> {
+    suspend fun getMyReviews(): Result<List<Review>> {
         return try {
             val response = api.getMyReviews()
             if (response.isSuccessful) {

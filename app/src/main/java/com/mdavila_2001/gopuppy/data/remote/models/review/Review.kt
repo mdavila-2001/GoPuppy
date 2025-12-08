@@ -1,8 +1,8 @@
-package com.mdavila_2001.gopuppy.data.remote.models.walk
+package com.mdavila_2001.gopuppy.data.remote.models.review
 
 import com.google.gson.annotations.SerializedName
 
-data class WalkReview(
+data class Review(
     @SerializedName("id")
     val id: Int,
     @SerializedName("walk_id")
@@ -16,4 +16,3 @@ data class WalkReview(
     @SerializedName("created_at")
     val createdAt: String?
 )
-
