@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdavila_2001.gopuppy.data.repository.AuthRepository
+import com.mdavila_2001.gopuppy.data.repository.WalkRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,7 @@ data class WalkerReviewsState(
 
 class WalkerReviewsViewModel(application: Application) : AndroidViewModel(application) {
     private val authRepository = AuthRepository(application.applicationContext)
+    private val walkRepository = WalkRepository()
 
     private val _state = MutableStateFlow(WalkerReviewsState())
     val state: StateFlow<WalkerReviewsState> = _state.asStateFlow()
@@ -44,79 +46,56 @@ class WalkerReviewsViewModel(application: Application) : AndroidViewModel(applic
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 
-            // TODO: Implementar llamada al API cuando esté disponible
-            // Por ahora usamos datos de ejemplo
-            val mockReviews = listOf(
-                Review(
-                    id = 1,
-                    userName = "María G.",
-                    userPhotoUrl = null,
-                    petName = "Max",
-                    rating = 5,
-                    comment = "¡Excelente paseador! Siempre puntual y mi perro Max lo adora. Manda fotos durante el paseo, lo cual es un gran detalle. ¡Totalmente recomendada!",
-                    timeAgo = "2 días",
-                    likes = 12
-                ),
-                Review(
-                    id = 2,
-                    userName = "Carlos P.",
-                    userPhotoUrl = null,
-                    petName = "Luna",
-                    rating = 4,
-                    comment = "Buen servicio en general. Luna volvió contenta y cansada, lo que indica que tuvieron un buen paseo. La hora de recogida pero me avisó con tiempo.",
-                    timeAgo = "1 semana",
-                    likes = 8
-                ),
-                Review(
-                    id = 3,
-                    userName = "Ana L.",
-                    userPhotoUrl = null,
-                    petName = "Rocky",
-                    rating = 5,
-                    comment = "Rocky siempre se emociona cuando ve que es hora de su paseo. El trato es inmejorable y se nota el cariño con el que cuida a las mascotas. ¡Gracias!",
-                    timeAgo = "3 semanas",
-                    likes = 5
-                ),
-                Review(
-                    id = 4,
-                    userName = "Juan Pérez",
-                    userPhotoUrl = null,
-                    petName = "Toby",
-                    rating = 5,
-                    comment = "Excelente profesional. Toby llegó feliz y cansado después del paseo. Muy confiable y responsable.",
-                    timeAgo = "1 mes",
-                    likes = 15
-                ),
-                Review(
-                    id = 5,
-                    userName = "Laura M.",
-                    userPhotoUrl = null,
-                    petName = "Bella",
-                    rating = 5,
-                    comment = "La mejor paseadora que hemos tenido. Bella siempre regresa feliz y bien cuidada.",
-                    timeAgo = "1 mes",
-                    likes = 10
-                )
-            )
+            // Obtener reseñas de la API
+            val result = walkRepository.getMyReviews()
+            
+            result.fold(
+                onSuccess = { walkReviews ->
+                    // Convertir WalkReview a Review para la UI
+                    // Nota: WalkReview no incluye userName, petName, timeAgo, ni likes
+                    // Por ahora mostramos solo rating y comentario
+                    val reviews = walkReviews.map { walkReview ->
+                        Review(
+                            id = walkReview.id,
+                            userName = "Usuario", // No disponible en la API
+                            userPhotoUrl = null,
+                            petName = "", // No disponible en la API
+                            rating = walkReview.rating,
+                            comment = walkReview.comment ?: "Sin comentario",
+                            timeAgo = walkReview.createdAt ?: "Fecha no disponible",
+                            likes = 0 // No disponible en la API
+                        )
+                    }
 
-            // Calcular rating promedio
-            val avgRating = if (mockReviews.isNotEmpty()) {
-                mockReviews.map { it.rating }.average()
-            } else {
-                0.0
-            }
+                    // Calcular rating promedio
+                    val avgRating = if (reviews.isNotEmpty()) {
+                        reviews.map { it.rating }.average()
+                    } else {
+                        0.0
+                    }
 
-            // Calcular distribución de ratings
-            val distribution = mutableMapOf<Int, Int>()
-            for (i in 1..5) {
-                distribution[i] = mockReviews.count { it.rating == i }
-            }
+                    // Calcular distribución de ratings
+                    val distribution = mutableMapOf<Int, Int>()
+                    for (i in 1..5) {
+                        distribution[i] = reviews.count { it.rating == i }
+                    }
 
-            _state.value = _state.value.copy(
-                isLoading = false,
-                reviews = mockReviews,
-                averageRating = avgRating,
-                ratingDistribution = distribution
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        reviews = reviews,
+                        averageRating = avgRating,
+                        ratingDistribution = distribution
+                    )
+                },
+                onFailure = { error ->
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = error.message ?: "Error al cargar reseñas",
+                        reviews = emptyList(),
+                        averageRating = 0.0,
+                        ratingDistribution = emptyMap()
+                    )
+                }
             )
         }
     }

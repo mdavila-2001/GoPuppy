@@ -59,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -87,7 +88,6 @@ fun WalkerProfileScreen(
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var bio by remember { mutableStateOf("") }
     var pricePerHour by remember { mutableStateOf("") }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -103,10 +103,9 @@ fun WalkerProfileScreen(
     }
 
     // Sincronizar con el estado del ViewModel
-    LaunchedEffect(state.name, state.email, state.bio, state.pricePerHour, state.photoUrl) {
+    LaunchedEffect(state.name, state.email, state.pricePerHour, state.photoUrl) {
         name = state.name
         email = state.email
-        bio = state.bio
         pricePerHour = state.pricePerHour
         currentPhotoUrl = state.photoUrl
     }
@@ -256,25 +255,19 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Sección Sobre mí
+                    // Campo Nombre
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "Sobre mí",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            text = "Nombre",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         OutlinedTextField(
-                            value = bio,
-                            onValueChange = { bio = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp),
-                            placeholder = {
-                                Text("Cuéntanos sobre tu experiencia con animales...")
-                            },
-                            maxLines = 5,
+                            value = name,
+                            onValueChange = { name = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -355,46 +348,56 @@ fun WalkerProfileScreen(
 
                             Spacer(modifier = Modifier.height(12.dp))
 
-                            // Ejemplo de reseña
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(12.dp)
+                            // Primera reseña o mensaje de no hay reseñas
+                            val firstReview = state.firstReview
+                            if (firstReview != null) {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    )
                                 ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    Column(
+                                        modifier = Modifier.padding(12.dp)
                                     ) {
-                                        Text(
-                                            text = "Juan Pérez",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
                                         Row(
-                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
-                                            repeat(5) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Star,
-                                                    contentDescription = null,
-                                                    tint = Color(0xFFFFB800),
-                                                    modifier = Modifier.size(16.dp)
-                                                )
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                            ) {
+                                                repeat(5) { index ->
+                                                    Icon(
+                                                        imageVector = Icons.Default.Star,
+                                                        contentDescription = null,
+                                                        tint = if (index < firstReview.rating) Color(0xFFFFB800) else Color.LightGray,
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
+                                                }
                                             }
                                         }
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = firstReview.comment ?: "Sin comentario",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                            lineHeight = 20.sp
+                                        )
                                     }
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Text(
-                                        text = "Excelente servicio! Cami es muy profesional y cariñosa con los perritos. La mejor paseadora que hemos tenido.",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                                        maxLines = 2
+                                        text = "Aún no tienes reseñas",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                     )
                                 }
                             }
@@ -414,34 +417,11 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Campo Nombre
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "Nombre",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                            )
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     // Botón Guardar Cambios
                     Button(
                         text = "Guardar Cambios",
                         onClick = {
-                            viewModel.updateProfile(name, email, bio, pricePerHour)
+                            viewModel.updateProfile(name, email, pricePerHour)
                         },
                         isLoading = state.isLoading,
                         modifier = Modifier.fillMaxWidth()
