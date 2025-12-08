@@ -62,7 +62,6 @@ fun PetInfoSection(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sección de mascota con foto
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
@@ -81,7 +80,6 @@ fun PetInfoSection(
                         )
                     }
 
-                    // Notas importantes
                     if (!notes.isNullOrBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
@@ -101,7 +99,6 @@ fun PetInfoSection(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // Foto de la mascota (circular grande)
                 Box(
                     modifier = Modifier
                         .size(80.dp)
@@ -134,14 +131,12 @@ fun PetInfoSection(
             HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sección del dueño
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Foto del dueño
                     Box(
                         modifier = Modifier
                             .size(44.dp)

@@ -35,16 +35,13 @@ fun WelcomeTransitionScreen(
     val offsetXAnim = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
-        // Fade in del contenido
         alphaAnim.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = 1000)
         )
 
-        // Esperar 2 segundos
         delay(2000)
         
-        // Deslizar hacia la derecha
         offsetXAnim.animateTo(
             targetValue = 2000f,
             animationSpec = tween(durationMillis = 500)

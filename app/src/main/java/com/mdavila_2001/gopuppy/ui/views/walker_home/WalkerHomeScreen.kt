@@ -54,7 +54,6 @@ fun WalkerHomeScreen(
         if (locationGranted) {
             viewModel.toggleAvailability(true)
         } else {
-            // Si no se concede el permiso, asegurarse de que el paseador no esté disponible
             viewModel.toggleAvailability(false)
         }
     }
@@ -104,7 +103,6 @@ fun WalkerHomeScreen(
                             isAvailable = state.isAvailable,
                             onToggle = { isChecked ->
                                 if (isChecked) {
-                                    // Verificar si ya tenemos permisos
                                     val hasFine = ContextCompat.checkSelfPermission(
                                         context,
                                         Manifest.permission.ACCESS_FINE_LOCATION
@@ -115,10 +113,8 @@ fun WalkerHomeScreen(
                                     ) == PackageManager.PERMISSION_GRANTED
 
                                     if (hasFine || hasCoarse) {
-                                        // Ya tenemos permisos, activar directamente
                                         viewModel.toggleAvailability(true)
                                     } else {
-                                        // Solicitar permisos
                                         permissionLauncher.launch(
                                             arrayOf(
                                                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -127,7 +123,6 @@ fun WalkerHomeScreen(
                                         )
                                     }
                                 } else {
-                                    // Desactivar disponibilidad
                                     viewModel.toggleAvailability(false)
                                 }
                             },

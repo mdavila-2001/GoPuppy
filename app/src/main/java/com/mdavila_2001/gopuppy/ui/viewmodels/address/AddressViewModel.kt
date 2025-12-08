@@ -68,7 +68,7 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
             _uiState.value = _uiState.value.copy(isLoading = true)
             repository.deleteAddress(id)
                 .onSuccess {
-                    loadAddresses() // Recargamos la lista
+                    loadAddresses()
                 }
                 .onFailure {
                     _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = "No se pudo eliminar")

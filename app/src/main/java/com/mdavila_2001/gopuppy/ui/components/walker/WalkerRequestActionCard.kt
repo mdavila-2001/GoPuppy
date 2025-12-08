@@ -28,7 +28,7 @@ import com.mdavila_2001.gopuppy.data.remote.models.walk.Walk
 
 @Composable
 fun WalkerRequestActionCard(
-    walk: Walk, // Recibe el modelo REAL
+    walk: Walk,
     onAccept: () -> Unit,
     onReject: () -> Unit
 ) {
@@ -38,7 +38,6 @@ fun WalkerRequestActionCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Cabecera: Mascota y Duración
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = walk.pet.name,
@@ -52,7 +51,6 @@ fun WalkerRequestActionCard(
                 )
             }
 
-            // Subtítulo: Raza/Especie
             Text(
                 text = walk.pet.type.toString(),
                 style = MaterialTheme.typography.bodyMedium,
@@ -87,7 +85,6 @@ fun WalkerRequestActionCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botones de Acción
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = onReject,

@@ -84,7 +84,6 @@ fun WalkDetailScreen(
         }
     }
 
-    // Cargar detalles del paseo
     LaunchedEffect(walkId) {
         viewModel.loadWalkDetails(walkId)
     }

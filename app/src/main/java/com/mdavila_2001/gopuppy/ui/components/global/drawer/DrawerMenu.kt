@@ -184,15 +184,6 @@ fun DrawerMenu(
             )
         }
         
-        DrawerMenuItem(
-            icon = Icons.Default.Settings,
-            title = "Configuración",
-            onClick = {
-                // TODO: Navegar a configuración
-                onCloseDrawer()
-            }
-        )
-        
         Spacer(modifier = Modifier.weight(1f))
         
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))

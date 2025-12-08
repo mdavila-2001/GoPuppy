@@ -80,7 +80,6 @@ fun StatusChipLightPreview() {
         Column(
             modifier = Modifier.padding(8.dp)
         ) {
-            // Estados en inglés (como vienen de la API)
             StatusChip(status = "pending")
             Spacer(modifier = Modifier.padding(4.dp))
             StatusChip(status = "accepted")

@@ -94,13 +94,12 @@ fun RequestWalkScreen(
     val view = LocalView.current
     val scrollState = rememberScrollState()
 
-    var dateText by remember { mutableStateOf("") } // Para mostrar
-    var timeText by remember { mutableStateOf("") } // Para mostrar
-    var scheduledAt by remember { mutableStateOf("") } // Formato API: YYYY-MM-DD HH:mm
+    var dateText by remember { mutableStateOf("") }
+    var timeText by remember { mutableStateOf("") }
+    var scheduledAt by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("30") }
     var notes by remember { mutableStateOf("") }
 
-    // Posición inicial por defecto (Santa Cruz, Bolivia)
     val defaultLocation = LatLng(-17.7833, -63.1821)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultLocation, 14f)
@@ -110,7 +109,6 @@ fun RequestWalkScreen(
         viewModel.loadInitialData()
     }
 
-    // Centrar mapa cuando cambia la dirección seleccionada
     LaunchedEffect(state.selectedAddress?.id) {
         state.selectedAddress?.let { address ->
             val lat = address.latitude?.toDoubleOrNull()
@@ -135,7 +133,7 @@ fun RequestWalkScreen(
         state.successMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             viewModel.clearMessages()
-            onNavigateBack() // Volver al Home
+            onNavigateBack()
         }
     }
 
@@ -250,7 +248,6 @@ fun RequestWalkScreen(
                     }
                 }
 
-                // 2. FORMULARIO (Parte Inferior)
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -291,10 +288,8 @@ fun RequestWalkScreen(
                         }
                     }
 
-                    // SECCIÓN FECHA Y HORA
                     Text("Detalles del Paseo", fontWeight = FontWeight.Bold)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        // Fecha
                         OutlinedTextField(
                             value = dateText,
                             onValueChange = {},
@@ -305,7 +300,6 @@ fun RequestWalkScreen(
                                 IconButton(onClick = {
                                     showDatePicker(context) { y, m, d ->
                                         dateText = "$d/${m+1}/$y"
-                                        // Guardamos parcial YYYY-MM-DD
                                         scheduledAt = String.format(Locale.getDefault(), "%04d-%02d-%02d", y, m + 1, d) + " " + (if(timeText.isEmpty()) "00:00" else timeText)
                                     }
                                 }) {
@@ -313,7 +307,6 @@ fun RequestWalkScreen(
                                 }
                             }
                         )
-                        // Hora
                         OutlinedTextField(
                             value = timeText,
                             onValueChange = {},
@@ -324,7 +317,6 @@ fun RequestWalkScreen(
                                 IconButton(onClick = {
                                     showTimePicker(context) { h, min ->
                                         timeText = String.format(Locale.getDefault(), "%02d:%02d", h, min)
-                                        // Completamos YYYY-MM-DD HH:mm
                                         val datePart = if(scheduledAt.contains(" ")) scheduledAt.split(" ")[0] else scheduledAt
                                         scheduledAt = "$datePart $timeText"
                                     }
@@ -335,7 +327,6 @@ fun RequestWalkScreen(
                         )
                     }
 
-                    // DURACIÓN Y NOTAS
                     Input(
                         text = duration,
                         onValueChange = { duration = it },
@@ -351,14 +342,12 @@ fun RequestWalkScreen(
                         maxLines = 3
                     )
 
-                    Spacer(modifier = Modifier.height(60.dp)) // Espacio para el botón flotante
+                    Spacer(modifier = Modifier.height(60.dp))
                 }
             }
         }
     }
 }
-
-// --- COMPONENTES AUXILIARES ---
 
 @Composable
 fun AddressDropdown(

@@ -54,7 +54,6 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
 
-    // Navegar directamente al home cuando el login sea exitoso
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess && uiState.userName != null) {
             val destination = if (uiState.isWalker) NavRoutes.WalkerHome.route else NavRoutes.OwnerHome.route
@@ -75,7 +74,6 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo circular
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -140,7 +138,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Mostrar mensaje de error si existe
             if (uiState.errorMessage != null) {
                 Text(
                     text = uiState.errorMessage ?: "",

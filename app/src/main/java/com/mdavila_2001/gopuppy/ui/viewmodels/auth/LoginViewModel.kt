@@ -34,7 +34,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
             result.fold(
                 onSuccess = { loginResponse ->
-                    // Obtener el perfil del usuario para obtener su nombre
                     val profileResult = authRepository.getProfile()
                     profileResult.fold(
                         onSuccess = { userInfo ->
@@ -46,7 +45,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                             )
                         },
                         onFailure = {
-                            // Si falla obtener el perfil, aún así consideramos exitoso el login
                             _uiState.value = _uiState.value.copy(
                                 isLoading = false,
                                 isSuccess = true,

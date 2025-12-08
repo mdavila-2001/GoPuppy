@@ -97,7 +97,6 @@ class OwnerHomeViewModel(application: Application) : AndroidViewModel(applicatio
                         isLoading = false,
                         successMessage = "¡Gracias por tu calificación!"
                     )
-                    // Recargar toda la pantalla
                     loadData()
                 }
                 .onFailure { e ->
@@ -139,7 +138,6 @@ class OwnerHomeViewModel(application: Application) : AndroidViewModel(applicatio
                 
                 repository.deletePet(petId).onSuccess {
                     Log.d("OwnerHomeVM", "Mascota eliminada exitosamente")
-                    // Recargar la lista de mascotas
                     loadPets()
                 }.onFailure { error ->
                     Log.e("OwnerHomeVM", "Error al eliminar mascota: ${error.message}", error)

@@ -86,29 +86,23 @@ fun WalkerProfileScreen(
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var pricePerHour by remember { mutableStateOf("") }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    // Estado para la foto de perfil
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var currentPhotoUrl by remember { mutableStateOf<String?>(null) }
 
-    // Launcher para seleccionar imagen de la galería
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
         selectedImageUri = uri
     }
 
-    // Sincronizar con el estado del ViewModel
-    LaunchedEffect(state.name, state.email, state.pricePerHour, state.photoUrl) {
+    LaunchedEffect(state.name, state.email, state.photoUrl) {
         name = state.name
         email = state.email
-        pricePerHour = state.pricePerHour
         currentPhotoUrl = state.photoUrl
     }
 
-    // Mostrar mensajes
     LaunchedEffect(state.errorMessage, state.successMessage) {
         state.errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -161,7 +155,6 @@ fun WalkerProfileScreen(
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Foto de perfil
                     Box(
                         modifier = Modifier.size(120.dp),
                         contentAlignment = Alignment.Center
@@ -190,7 +183,6 @@ fun WalkerProfileScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                 }
-                                // Segundo: Mostrar foto actual del servidor
                                 !currentPhotoUrl.isNullOrBlank() -> {
                                     AsyncImage(
                                         model = currentPhotoUrl,
@@ -201,7 +193,6 @@ fun WalkerProfileScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                 }
-                                // Tercero: Mostrar iniciales como placeholder
                                 else -> {
                                     Text(
                                         text = name.take(2).uppercase().ifBlank { "??" },
@@ -212,8 +203,7 @@ fun WalkerProfileScreen(
                                 }
                             }
                         }
-                        
-                        // Botón de editar foto
+
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -253,7 +243,6 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Campo Nombre
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = "Nombre",
@@ -276,31 +265,6 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Tarifa por hora
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "Tarifa por hora",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        OutlinedTextField(
-                            value = pricePerHour,
-                            onValueChange = { pricePerHour = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            placeholder = { Text("$15") },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                            )
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Mis Calificaciones
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -346,7 +310,6 @@ fun WalkerProfileScreen(
 
                             Spacer(modifier = Modifier.height(12.dp))
 
-                            // Primera reseña o mensaje de no hay reseñas
                             val firstReview = state.firstReview
                             if (firstReview != null) {
                                 Card(
@@ -361,28 +324,82 @@ fun WalkerProfileScreen(
                                     ) {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            modifier = Modifier.fillMaxWidth()
                                         ) {
-                                            Row(
-                                                horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                            ) {
-                                                repeat(5) { index ->
-                                                    Icon(
-                                                        imageVector = Icons.Default.Star,
-                                                        contentDescription = null,
-                                                        tint = if (index < firstReview.rating) Color(0xFFFFB800) else Color.LightGray,
-                                                        modifier = Modifier.size(16.dp)
+                                            val ownerInitial = firstReview.userName.firstOrNull()?.toString()?.uppercase() ?: "?"
+                                            if (!firstReview.userPhotoUrl.isNullOrBlank() && firstReview.userPhotoUrl != "null") {
+                                                AsyncImage(
+                                                    model = firstReview.userPhotoUrl,
+                                                    contentDescription = "Foto de ${firstReview.userName}",
+                                                    modifier = Modifier
+                                                        .size(36.dp)
+                                                        .clip(CircleShape),
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                            } else {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(36.dp)
+                                                        .clip(CircleShape)
+                                                        .background(MaterialTheme.colorScheme.primaryContainer),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        text = ownerInitial,
+                                                        style = MaterialTheme.typography.titleSmall,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                                    )
+                                                }
+                                            }
+
+                                            Spacer(modifier = Modifier.size(8.dp))
+
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = if (firstReview.petName.isNotBlank())
+                                                        "${firstReview.userName} (dueño de ${firstReview.petName})"
+                                                    else
+                                                        firstReview.userName,
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                if (firstReview.timeAgo.isNotBlank()) {
+                                                    Text(
+                                                        text = "Hace ${firstReview.timeAgo}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                                     )
                                                 }
                                             }
                                         }
+
                                         Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = firstReview.comment ?: "Sin comentario",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                            lineHeight = 20.sp
-                                        )
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            repeat(5) { index ->
+                                                Icon(
+                                                    imageVector = Icons.Default.Star,
+                                                    contentDescription = null,
+                                                    tint = if (index < firstReview.rating) Color(0xFFFFB800) else Color.LightGray,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                        }
+
+                                        if(firstReview.comment.isNotBlank()) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            Text(
+                                                text = firstReview.comment.ifBlank { "Sin comentario" },
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                                lineHeight = 20.sp
+                                            )
+                                        }
                                     }
                                 }
                             } else {
@@ -402,7 +419,6 @@ fun WalkerProfileScreen(
 
                             Spacer(modifier = Modifier.height(12.dp))
 
-                            // Botón Ver todas las reseñas
                             OutlinedButton(
                                 text = "Ver todas las reseñas",
                                 onClick = { 
@@ -415,11 +431,10 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Botón Guardar Cambios
                     Button(
                         text = "Guardar Cambios",
                         onClick = {
-                            viewModel.updateProfile(name, email, pricePerHour)
+                            viewModel.updateProfile(name)
                         },
                         isLoading = state.isLoading,
                         modifier = Modifier.fillMaxWidth()
@@ -427,7 +442,6 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Gestión de Cuenta
                     Text(
                         text = "Gestión de Cuenta",
                         style = MaterialTheme.typography.titleMedium,
@@ -438,7 +452,6 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón Gestionar Paseos
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -467,7 +480,6 @@ fun WalkerProfileScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Botón Cerrar Sesión
                     DangerButton(
                         text = "Cerrar Sesión",
                         onClick = {
@@ -479,7 +491,6 @@ fun WalkerProfileScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                // Diálogo de confirmación de logout
                 if (showLogoutDialog) {
                     ConfirmDialog(
                         title = "Cerrar Sesión",

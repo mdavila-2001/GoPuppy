@@ -99,19 +99,16 @@ fun WalkHistoryScreen(
                         .padding(padding)
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    // Search bar
                     SearchBar(
                         searchQuery = state.searchQuery,
                         onSearchQueryChange = { viewModel.updateSearchQuery(it) }
                     )
 
-                    // Filter chips
                     FilterChips(
                         selectedFilter = state.selectedFilter,
                         onFilterSelected = { viewModel.updateFilter(it) }
                     )
 
-                    // Content
                     when {
                         state.isLoading -> {
                             Box(

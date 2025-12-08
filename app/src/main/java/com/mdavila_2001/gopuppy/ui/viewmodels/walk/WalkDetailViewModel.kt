@@ -51,7 +51,6 @@ class WalkDetailViewModel(application: Application) : AndroidViewModel(applicati
             _uiState.value = _uiState.value.copy(isLoading = true)
             repository.startWalk(currentWalk.id)
                 .onSuccess {
-                    // Recargamos el detalle para ver el nuevo estado
                     loadWalkDetails(currentWalk.id)
                     _uiState.value = _uiState.value.copy(successMessage = "¡Paseo iniciado!")
                 }

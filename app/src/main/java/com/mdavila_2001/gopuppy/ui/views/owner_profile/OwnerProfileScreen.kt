@@ -80,18 +80,15 @@ fun OwnerProfileScreen(
     var phone by remember { mutableStateOf("") }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    // Estado para la foto de perfil
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var currentPhotoUrl by remember { mutableStateOf<String?>(null) }
 
-    // Launcher para seleccionar imagen de la galería
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
         selectedImageUri = uri
     }
 
-    // Sincronizar con el estado del ViewModel
     LaunchedEffect(state.name, state.email, state.phone, state.photoUrl) {
         name = state.name
         email = state.email
@@ -99,7 +96,6 @@ fun OwnerProfileScreen(
         currentPhotoUrl = state.photoUrl
     }
 
-    // Mostrar mensajes
     LaunchedEffect(state.errorMessage, state.successMessage) {
         state.errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -152,7 +148,6 @@ fun OwnerProfileScreen(
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Foto de perfil
                     Box(
                         modifier = Modifier.size(120.dp),
                         contentAlignment = Alignment.Center
@@ -171,7 +166,6 @@ fun OwnerProfileScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             when {
-                                // Primero: Mostrar imagen seleccionada (nueva)
                                 selectedImageUri != null -> {
                                     AsyncImage(
                                         model = selectedImageUri,
@@ -182,8 +176,7 @@ fun OwnerProfileScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                 }
-                                // Segundo: Mostrar foto actual del servidor
-                                !currentPhotoUrl.isNullOrBlank() -> {
+                               !currentPhotoUrl.isNullOrBlank() -> {
                                     AsyncImage(
                                         model = currentPhotoUrl,
                                         contentDescription = "Foto de perfil",
@@ -193,7 +186,6 @@ fun OwnerProfileScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                 }
-                                // Tercero: Mostrar iniciales como placeholder
                                 else -> {
                                     Text(
                                         text = name.take(2).uppercase().ifBlank { "??" },
@@ -205,7 +197,6 @@ fun OwnerProfileScreen(
                             }
                         }
                         
-                        // Botón de editar foto
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -245,7 +236,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Información Personal
                     Text(
                         text = "Información Personal",
                         style = MaterialTheme.typography.titleMedium,
@@ -256,7 +246,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Campo Nombre
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = "Nombre",
@@ -279,7 +268,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Campo Correo electrónico
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = "Correo electrónico",
@@ -302,7 +290,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón Guardar Cambios
                     Button(
                         text = "Guardar Cambios",
                         onClick = {
@@ -314,7 +301,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Gestión de Cuenta
                     Text(
                         text = "Gestión de Cuenta",
                         style = MaterialTheme.typography.titleMedium,
@@ -325,7 +311,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón Gestionar mis Mascotas
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -354,7 +339,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Botón Métodos de Pago
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -365,7 +349,6 @@ fun OwnerProfileScreen(
                                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
                                 shape = RoundedCornerShape(12.dp)
                             )
-                            .clickable { /* TODO: Navegar a métodos de pago */ }
                             .padding(16.dp)
                     ) {
                         Text(
@@ -379,7 +362,6 @@ fun OwnerProfileScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Botón Cerrar Sesión
                     DangerButton(
                         text = "Cerrar Sesión",
                         onClick = {

@@ -40,7 +40,6 @@ class WalkerHomeViewModel(application: Application) : AndroidViewModel(applicati
 
     fun loadData() {
         viewModelScope.launch {
-            // Cargar perfil del paseador
             authRepository.getProfile()
                 .onSuccess { userInfo ->
                     _uiState.value = _uiState.value.copy(
@@ -72,17 +71,14 @@ class WalkerHomeViewModel(application: Application) : AndroidViewModel(applicati
             val allAccepted = acceptedResult.getOrDefault(emptyList())
             val allHistory = historyResult.getOrDefault(emptyList())
 
-            // Filtrar paseos propios del paseador
             val myPending = allPending.filter { it.walkerId == myId }
             val myAccepted = allAccepted.filter { it.walkerId == myId }
 
-            // Incluir paseos en progreso desde el historial
             val activeStatuses = listOf("accepted", "scheduled", "in_progress", "started", "en curso")
             val myInProgress = allHistory.filter { walk ->
                 walk.walkerId == myId && activeStatuses.any { it.equals(walk.status, ignoreCase = true) }
             }
 
-            // Combinar paseos aceptados y en progreso, evitar duplicados
             val allActiveWalks = (myAccepted + myInProgress)
                 .distinctBy { it.id }
                 .sortedBy { it.scheduledAt }

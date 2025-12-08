@@ -55,9 +55,6 @@ class OwnerProfileViewModel(application: Application) : AndroidViewModel(applica
     fun updateProfile(name: String, email: String, phone: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
-            
-            // TODO: Implementar actualización de perfil cuando el endpoint esté disponible
-            // Por ahora solo actualizamos el estado local
             _state.value = _state.value.copy(
                 name = name,
                 email = email,

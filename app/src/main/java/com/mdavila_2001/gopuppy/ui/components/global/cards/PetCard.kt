@@ -79,7 +79,6 @@ fun PetCard(
                         modifier = Modifier.fillMaxSize(),
                         contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                         onError = {
-                            // Si falla la carga, mostrar el icono por defecto
                         }
                     )
                 } else {

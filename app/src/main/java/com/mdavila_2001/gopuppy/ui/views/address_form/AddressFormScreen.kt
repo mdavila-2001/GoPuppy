@@ -68,7 +68,7 @@ fun AddressFormScreen(
     var label by remember { mutableStateOf("") }
     var addressText by remember { mutableStateOf("") }
 
-    val defaultLocation = LatLng(-17.7833, -63.1821) // Santa Cruz, Bolivia - fallback
+    val defaultLocation = LatLng(-17.7833, -63.1821)
     var initialLocation by remember { mutableStateOf(defaultLocation) }
     var locationPermissionGranted by remember { mutableStateOf(false) }
 
@@ -78,7 +78,6 @@ fun AddressFormScreen(
         position = CameraPosition.fromLatLngZoom(initialLocation, 15f)
     }
 
-    // Launcher para solicitar permisos de ubicación
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -99,7 +98,6 @@ fun AddressFormScreen(
 
     var selectedLocation by remember { mutableStateOf(initialLocation) }
 
-    // Solicitar ubicación al iniciar la pantalla
     LaunchedEffect(Unit) {
         if (locationHelper.hasLocationPermission()) {
             locationPermissionGranted = true

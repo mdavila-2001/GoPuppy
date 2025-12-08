@@ -11,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.mdavila_2001.gopuppy.ui.FileUtils
+import com.mdavila_2001.gopuppy.ui.viewmodels.pet.PetFormViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -76,7 +76,6 @@ fun PetFormScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    // Estados del formulario
     var name by remember { mutableStateOf("") }
     var type by remember { mutableStateOf("") }
     var birthdate by remember { mutableStateOf("") }
@@ -91,7 +90,6 @@ fun PetFormScreen(
         selectedImageUri = uri
     }
 
-    // Cargar datos si es edición
     LaunchedEffect(petId) {
         if (petId != null && petId > 0) {
             viewModel.loadPet(petId)
@@ -105,7 +103,6 @@ fun PetFormScreen(
 
             currentPhotoUrl = pet.photoUrl
             
-            // Parsear las notas para extraer birthdate y notes reales
             val notesText = pet.notes ?: ""
             val lines = notesText.lines()
             
@@ -124,7 +121,6 @@ fun PetFormScreen(
         }
     }
 
-    // Mostrar mensajes
     LaunchedEffect(state.errorMessage, state.successMessage) {
         state.errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -180,7 +176,6 @@ fun PetFormScreen(
                     )
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
                     .clickable {
-                        // AL HACER CLICK: Abrimos la galería (Solo imágenes)
                         photoPickerLauncher.launch(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                         )
@@ -233,7 +228,6 @@ fun PetFormScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo Nombre
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Nombre",
@@ -256,7 +250,6 @@ fun PetFormScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo Tipo
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Tipo",
@@ -280,7 +273,6 @@ fun PetFormScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo Fecha de Nacimiento
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Fecha de Nacimiento",
@@ -299,14 +291,12 @@ fun PetFormScreen(
                         IconButton(onClick = {
                             val calendar = Calendar.getInstance()
                             
-                            // Si ya hay una fecha, parsearla
                             if (birthdate.isNotEmpty()) {
                                 try {
                                     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                                     val date = sdf.parse(birthdate)
                                     date?.let { calendar.time = it }
                                 } catch (e: Exception) {
-                                    // Ignorar error de parseo
                                 }
                             }
 
@@ -336,7 +326,6 @@ fun PetFormScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo Notas
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Notas de comportamiento/salud",
@@ -364,7 +353,6 @@ fun PetFormScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón Guardar
             Button(
                 onClick = {
                     val photoFile = selectedImageUri?.let { uri ->
@@ -404,7 +392,6 @@ fun PetFormScreen(
                 }
             }
 
-            // Botón Eliminar (solo si es edición)
             if (petId != null && petId > 0) {
                 Spacer(modifier = Modifier.height(16.dp))
 

@@ -48,7 +48,6 @@ class RequestWalkViewModel(application: Application) : AndroidViewModel(applicat
             val pets = petRepository.getMyPets().getOrDefault(emptyList())
             val addresses = addressRepository.getMyAddresses().getOrDefault(emptyList())
 
-            // Seleccionar primera dirección por defecto si existe
             val defaultAddress = addresses.firstOrNull()
 
             _uiState.value = _uiState.value.copy(
@@ -71,7 +70,7 @@ class RequestWalkViewModel(application: Application) : AndroidViewModel(applicat
 
     private fun searchWalkers(address: Address) {
         viewModelScope.launch {
-            val lat = address.latitude?.toDoubleOrNull() ?: -17.7833 // Santa Cruz por defecto
+            val lat = address.latitude?.toDoubleOrNull() ?: -17.7833
             val lng = address.longitude?.toDoubleOrNull() ?: -63.1821
 
             val result = walkerRepository.getNearbyWalkers(lat, lng)

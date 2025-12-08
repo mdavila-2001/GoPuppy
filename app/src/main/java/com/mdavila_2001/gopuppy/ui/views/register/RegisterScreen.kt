@@ -115,7 +115,6 @@ fun RegisterScreen(
                 verticalArrangement = Arrangement.Top
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
-            // Logo circular
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -139,7 +138,6 @@ fun RegisterScreen(
                         .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
                         .clickable {
-                            // Abrir galería
                             photoPickerLauncher.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
@@ -156,7 +154,7 @@ fun RegisterScreen(
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(
-                                imageVector = Icons.Default.Add, // O Icons.Default.Person
+                                imageVector = Icons.Default.Add,
                                 contentDescription = "Subir Foto",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(32.dp)
@@ -170,7 +168,6 @@ fun RegisterScreen(
                     }
                 }
 
-            // Título
             Text(
                 text = "Crear Cuenta",
                 style = MaterialTheme.typography.headlineMedium,
@@ -180,7 +177,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo de nombre completo
             Input(
                 text = name,
                 onValueChange = { name = it },
@@ -190,7 +186,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo de correo electrónico
             Input(
                 text = email,
                 onValueChange = { email = it },
@@ -201,7 +196,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo de contraseña
             PasswordInput(
                 password = password,
                 onValueChange = { password = it },
@@ -211,7 +205,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo de confirmar contraseña
             PasswordInput(
                 password = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -219,7 +212,6 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Campo de precio por hora (solo para paseadores)
             if (isWalker) {
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -234,7 +226,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botón Registrarse
             Button(
                 text = if (isWalker) "Registrarse (Paseador)" else "Registrarse (Dueño)",
                 onClick = {

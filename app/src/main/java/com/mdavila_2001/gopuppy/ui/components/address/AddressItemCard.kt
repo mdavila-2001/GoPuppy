@@ -37,7 +37,7 @@ fun AddressItemCard(address: Address, onDelete: () -> Unit) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = address.label, // Ej: "Casa"
+                    text = address.label,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )

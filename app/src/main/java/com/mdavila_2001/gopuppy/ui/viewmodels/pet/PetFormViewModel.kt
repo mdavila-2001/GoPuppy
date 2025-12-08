@@ -1,4 +1,4 @@
-package com.mdavila_2001.gopuppy.ui.views.pet_form
+package com.mdavila_2001.gopuppy.ui.viewmodels.pet
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -65,7 +65,6 @@ class PetFormViewModel : ViewModel() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
 
-            // Combinar birthdate en las notas hasta que la API lo soporte
             val combinedNotes = buildString {
                 if (!birthdate.isNullOrBlank()) {
                     append("Fecha de Nacimiento: $birthdate")
@@ -79,7 +78,7 @@ class PetFormViewModel : ViewModel() {
             val petDTO = PetDTO(
                 name = name.trim(),
                 type = type.trim(),
-                notes = combinedNotes ?: ""  // Enviar string vacío en lugar de null
+                notes = combinedNotes ?: ""
             )
 
             Log.d("PetFormVM", "Guardando mascota: name='${petDTO.name}', type='${petDTO.type}', notes='${petDTO.notes}'")

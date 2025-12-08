@@ -312,7 +312,6 @@ fun OwnerHomeScreen(
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    // Mostrar error si existe
                     if (state.errorMessage != null) {
                         Box(
                             modifier = Modifier
@@ -333,7 +332,6 @@ fun OwnerHomeScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                     
-                    // Lista de mascotas
                     if (state.isLoading) {
                         Box(
                             modifier = Modifier

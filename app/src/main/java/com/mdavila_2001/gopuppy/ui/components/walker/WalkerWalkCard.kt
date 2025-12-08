@@ -104,7 +104,6 @@ fun WalkerWalkCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Información de la mascota
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -114,7 +113,6 @@ fun WalkerWalkCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
-                    // Foto de la mascota
                     Box(
                         modifier = Modifier
                             .size(56.dp)
@@ -159,7 +157,6 @@ fun WalkerWalkCard(
                     }
                 }
 
-                // Botón de acción
                 when (status) {
                     "accepted", "pending", "scheduled" -> {
                         Button(
@@ -243,11 +240,9 @@ private fun isWithin5MinutesOfScheduled(scheduledAt: String): Boolean {
         val now = Calendar.getInstance()
         val scheduled = Calendar.getInstance().apply { time = scheduledDate }
 
-        // Calcular diferencia en minutos
         val diffInMillis = scheduled.timeInMillis - now.timeInMillis
         val diffInMinutes = diffInMillis / (1000 * 60)
 
-        // Permitir iniciar si falta 5 minutos o menos, o si ya pasó la hora
         diffInMinutes <= 5
     } catch (e: Exception) {
         false

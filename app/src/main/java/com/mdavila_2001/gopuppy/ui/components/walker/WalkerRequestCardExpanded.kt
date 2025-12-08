@@ -44,7 +44,6 @@ fun WalkerRequestCardExpanded(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.Top) {
-                // Info
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         "Nueva Solicitud",

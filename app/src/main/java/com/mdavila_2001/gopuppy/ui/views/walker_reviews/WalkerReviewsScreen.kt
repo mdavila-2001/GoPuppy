@@ -148,7 +148,6 @@ fun WalkerReviewsScreen(
                             )
                         }
 
-                        // Filtros
                         item {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -281,7 +280,6 @@ private fun RatingHeaderCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Distribución de ratings
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(4.dp)

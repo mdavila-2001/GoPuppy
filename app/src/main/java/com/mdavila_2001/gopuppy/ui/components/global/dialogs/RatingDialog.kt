@@ -79,7 +79,6 @@ fun RatingDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Estrellas de calificación
                 Text(
                     text = "Tu calificación",
                     style = MaterialTheme.typography.labelLarge,
@@ -122,7 +121,6 @@ fun RatingDialog(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Campo de comentario
                 OutlinedTextField(
                     value = comment,
                     onValueChange = { comment = it },
@@ -141,7 +139,6 @@ fun RatingDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botones
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
